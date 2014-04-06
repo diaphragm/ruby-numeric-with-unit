@@ -17,7 +17,7 @@ class NumericWithUnit
   
   def <=>(other)
     if @unit.dimension_equal? other.unit
-      p @unit.to_si(@value) <=> other.unit.to_si(other.value)
+      @unit.to_si(@value) <=> other.unit.to_si(other.value)
     end
   end
   
@@ -80,7 +80,7 @@ class NumericWithUnit
     if self.class == other.class
       self.class.new(@value * other.value, @unit * other.unit)
     else
-      self.class.new(@value * other.value, @unit)
+      self.class.new(@value * other, @unit)
     end
   end
   
@@ -88,7 +88,7 @@ class NumericWithUnit
     if self.class == other.class
       self.class.new(@value / other.value, @unit / other.unit)
     else
-      self.class.new(@value / other.value, @unit)
+      self.class.new(@value / other, @unit)
     end
   end
   

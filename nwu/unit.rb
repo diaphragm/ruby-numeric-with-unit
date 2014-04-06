@@ -1,4 +1,6 @@
 
+require 'mathn'
+
 class Unit
   class Config
     attr_reader :symbol, :dimension, :derivation
@@ -126,7 +128,7 @@ class Unit
   end
   
   def self.list
-    @@list.map{|u| u.symbol}
+    @@list.map(&:symbol)
   end
   
   def self.<<(arg)
