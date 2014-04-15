@@ -19,9 +19,10 @@ ruby-numeric-with-unit
      
     require 'nwu/util'
     puts (50['L/min'] + 3['m3/hr'] ) * 30['min']
-    3000 L
+    #=> 3000 L
+    puts (50.L_min + 3.m3_hr) * 30.min
+	#=> 3000 L
 
-* `require 'nwu'`すると同時に`require 'mathn'`されるので注意。  
 * `'require 'nwu/util'`した場合は、`Numeric#[]`と`Fixnum#[]`と`Bignum#[]`がオーバーライドされるので注意。
 
 
