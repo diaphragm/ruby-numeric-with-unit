@@ -82,9 +82,10 @@ Unit<<, Unit[], Unit[]=
 基本的な単位は以下のファイルで定義済みです。  
 適宜`require`してください。
 * 'nwu/base_unit' (SI単位、SI組立単位およびSI併用単位を定義。デフォルトで`require`されます。)
-* 'nwu/common_unit'  (独断と偏見によりcommonと認定された単位。)
+* 'nwu/common_unit'  (独断と偏見によりcommonと認定された単位。デフォルトで`require`されます。)
 * 'nwu/cgs_unit' (未完成)
-* 'imperial_unit' (未完成)
+* 'nwu/imperial_unit' (未完成)
+* 'nwu/natural_unit' (未完成)
 
 class NumericWithUnit
 ======================
