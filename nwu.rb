@@ -11,5 +11,5 @@ require 'nwu/unit'
 require 'nwu/numeric_with_unit'
 
 require 'nwu/base_unit'
-#require 'nwu/common_unit'
+require 'nwu/common_unit'
 

@@ -3,7 +3,7 @@ require 'nwu/base_unit'
 
 # Naural Units
 # Speed
-Unit['c0'] = 299792458, 'm/s'
+Unit['c0'] = 299792458.0, 'm/s'
 # Action
 Unit['ħ'] = 1.0545716818e−34, 'J.s'
 Unit['h'] = 'ħ'  # alias

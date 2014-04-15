@@ -6,7 +6,7 @@
 require 'nwu/unit'
 
 # Dimensionless
-Unit.assign do |conf|
+Unit << Unit.new do |conf|
   conf.symbol = '1'
 end
 
@@ -17,72 +17,66 @@ end
 #
 
 # Length
-Unit.assign do |conf|
+Unit << Unit.new do |conf|
   conf.symbol = 'm'
   conf.dimension[:L] = 1
-  conf.from_si = ->(x){x}
-  conf.to_si = ->(x){x}
+  conf.from_si{|x| x}
+  conf.to_si{|x| x}
   conf.si = true
 end
 
 # Mass
-Unit.assign do |conf|
+Unit << Unit.new do |conf|
   conf.symbol = 'kg'
   conf.dimension[:M] = 1
-  conf.from_si = ->(x){x}
-  conf.to_si = ->(x){x}
+  conf.from_si{|x| x}
+  conf.to_si{|x| x}
   conf.si = true
 end
-
-Unit.assign do |conf|   # for compatible
-  conf.symbol = 'g'
-  conf.dimension[:M] = 1
-  conf.from_si = ->(x){x*1000}
-  conf.to_si = ->(x){x/1000}
-end
+Unit['g'] = 1e-3, 'kg' # for compatible
 
 # Time
-Unit.assign do |conf|
+Unit << Unit.new do |conf|
   conf.symbol = 's'
   conf.dimension[:T] = 1
-  conf.from_si = ->(x){x}
-  conf.to_si = ->(x){x}
+  conf.from_si{|x| x}
+  conf.to_si{|x| x}
   conf.si = true
 end
 
 # Electric Current
-Unit.assign do |conf|
+Unit << Unit.new do |conf|
   conf.symbol = 'A'
   conf.dimension[:I] = 1
-  conf.from_si = ->(x){x}
-  conf.to_si = ->(x){x}
+  conf.from_si{|x| x}
+  conf.to_si{|x| x}
   conf.si = true
 end
 
 # Thermodynamic Temperature
-Unit.assign do |conf|
+Unit << Unit.new do |conf|
   conf.symbol = 'K'
   conf.dimension[:Θ] = 1
-  conf.from_si = ->(x){x}
-  conf.to_si = ->(x){x}
+  conf.from_si{|x| x}
+  conf.to_si{|x| x}
   conf.si = true
 end
 
 # Amout of Substance
-Unit.assign do |conf|
+Unit << Unit.new do |conf|
   conf.symbol = 'mol'
   conf.dimension[:N] = 1
-  conf.from_si = ->(x){x}
-  conf.to_si = ->(x){x}
+  conf.from_si{|x| x}
+  conf.to_si{|x| x}
   conf.si = true
 end
 
 # Luminous Intensity
-Unit.assign do |conf|
+Unit << Unit.new do |conf|
   conf.symbol = 'cd'
   conf.dimension[:J] = 1
-  conf.from_si = ->(x){x}
-  conf.to_si = ->(x){x}
+  conf.from_si{|x| x}
+  conf.to_si{|x| x}
   conf.si = true
 end
 
@@ -97,9 +91,9 @@ Unit['Hz'] = '1/s'
 
 # Angle
 Unit['rad'] = 'm/m'
-Unit['°'] = Math::PI/180, 'rad'
-Unit['′'] = '1/60'.to_r, '°'
-Unit['″'] = '1/60'.to_r, '′'
+Unit['°'] = Math::PI/180.0, 'rad'
+Unit['′'] = 1.0/60.0, '°'
+Unit['″'] = 1.0/60.0, '′'
 
 # Solid Angle
 Unit['sr'] = 'm2/m2'
@@ -127,6 +121,7 @@ Unit['F'] = 'C/V'
 
 # Electriccal Resistance
 Unit['Ω'] = 'V/A'
+Unit['ohm'] = 'Ω'
 
 # Electriccal Conductance
 Unit['S'] = 'A/V'
@@ -144,8 +139,8 @@ Unit['H'] = 'V.s/A'
 Unit << Unit.new do |conf|
   conf.symbol = '℃'
   conf.dimension[:Θ] = 1
-  conf.from_si = ->(x){x-273.15}
-  conf.to_si = ->(x){x+273.15}
+  conf.from_si{|x| x-273.15}
+  conf.to_si{|x| x+273.15}
 end
 Unit['degC'] = '℃'
 
@@ -171,18 +166,18 @@ Unit['kat'] = 'mol/s'
 #
 
 # Time
-Unit['min'] = 60, 's'
-Unit['hr'] = 60, 'min'
+Unit['min'] = 60.0, 's'
+Unit['hr'] = 60.0, 'min'
 
 # Area
-Unit['ha'] = 10000, 'm2'
-Unit['a'] = 1/100 , 'ha'  # for compatible
+Unit['ha'] = 10000.0, 'm2'
+Unit['a'] = 1.0/100.0 , 'ha'  # for compatible
 
 # Volume
 Unit['L'] = 'dm3'
 
 # Mass
-Unit['t'] = 1000, 'kg'
+Unit['t'] = 1000.0, 'kg'
 
 # Energy
 Unit['eV'] = 1.6021765314e-19, 'J'
