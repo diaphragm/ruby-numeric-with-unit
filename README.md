@@ -23,7 +23,9 @@ ruby-numeric-with-unit
     puts (50.L_min + 3.m3_hr) * 30.min
 	#=> 3000 L
 
-* `'require 'nwu/util'`した場合は、`Numeric#[]`と`Fixnum#[]`と`Bignum#[]`がオーバーライドされるので注意。
+* `require 'nwu'すると'mathn'も`require`されます。
+* `require 'nwu/util'`すると`Numeric#[]`と`Fixnum#[]`と`Bignum#[]`がオーバーライドされるので注意。
+* `require 'nwu/util'`すると`Numeric#method_missing`と`Fixnum#method_missing`と`Bignum#method_missing`がオーバーライドされるので注意。
 
 
 class Unit

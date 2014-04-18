@@ -15,6 +15,14 @@ class NumericWithUnit
     @unit = unit.is_a?(Unit) ? unit : Unit[unit]
   end
   
+  def inspect
+    "#{@value.inspect} [#{@unit.symbol}] #{unit.dimension}"
+  end
+  
+  def to_s
+    "#{@value} #{@unit}"
+  end
+  
   def <=>(other)
     if @unit.dimension_equal? other.unit
       @unit.to_si(@value) <=> other.unit.to_si(other.value)
@@ -23,14 +31,6 @@ class NumericWithUnit
   
   def succ
     self.class.new(@value.succ, @unit)
-  end
-  
-  def inspect
-    "#{@value.inspect} [#{@unit.symbol}] #{@unit.dimension}"
-  end
-  
-  def to_s
-    "#{@value} #{@unit}"
   end
   
   def to_i
@@ -62,19 +62,12 @@ class NumericWithUnit
   end
   
   def +(other)
-    if self.class == other.class
-      if @unit.dimension_equal? other.unit
-        v1 = @unit.to_si(@value)
-        v2 = other.unit.to_si(other.value)
-        vr = @unit.from_si(v1+v2)
-        self.class.new(vr, @unit)
-      else
-        raise DimensionError, "Dimensions are different between #{@unit.dimension} #{other.unit.dimension}"
-      end
+    nwu = if other.is_a? self.class
+      other
     else
-      warn "Warning: Calculating Numeric-with-Unit and Numeric`-without-Unit'"
-      self.class.new(@value + other, @unit)
+      self.class.new(other, Unit.new)
     end
+    add_with_unit(nwu)
   end
   
   def -(other)
@@ -82,7 +75,54 @@ class NumericWithUnit
   end
   
   def *(other)
-    # other * self の場合に対応してないの何とかしたい
+    case other
+    when self.class
+      multiply_with_unit(other)
+    else
+      self.class.new(@value*other, @unit)
+    end
+  end
+  
+  def /(other)
+    case other
+    when self.class
+      devide_with_unit(other)
+    else
+      self.class.new(@value/other, @unit)
+    end
+  end
+  
+  def coerce(other)
+    if self.class == other.class
+      [other, self]
+    else
+      [self.class.new(other, Unit.new), self]
+    end
+  end
+  
+  def **(num)
+    self.class.new(@value**num, @unit**num)
+  end
+  
+  def root(num)
+    self**(Rational(1,num))
+  end
+  def sqrt; root(2) end
+  
+  private
+  
+  def add_with_unit(other)
+    if @unit.dimension_equal? other.unit
+      v1 = @unit.to_si(@value)
+      v2 = other.unit.to_si(other.value)
+      vr = @unit.from_si(v1+v2)
+      self.class.new(vr, @unit)
+    else
+      raise DimensionError, "Dimensions are different between #{@unit.dimension} #{other.unit.dimension}"
+    end
+  end
+  
+  def multiply_with_unit(other)
     ou = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
       other
     elsif @unit.dimension_equal? other.unit
@@ -96,7 +136,7 @@ class NumericWithUnit
     self.class.new(@value * ou.value, @unit * ou.unit)
   end
   
-  def /(other)
+  def devide_with_unit(other)
     ou = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
       other
     elsif @unit.dimension_equal? other.unit
@@ -110,25 +150,38 @@ class NumericWithUnit
     self.class.new(@value / ou.value, @unit / ou.unit)
   end
   
-  def **(num)
-    self.class.new(@value**num, @unit**num)
-  end
-  
-  def coerce(other)
-    if self.class == other.class
-      [other, self]
-    else
-      [self.class.new(other, Unit.new), self]
-    end
-  end
 end
-
-#class Numeric
-#  def *(other)
-#    (other == Unit) ? other * self : super
-#  end
-#end
 
 class NumericWithUnit
   class DimensionError < StandardError; end
 end
+
+
+
+class Fixnum
+  def to_nwu(unit)
+    NumericWithUnit[self, unit]
+  end
+end
+
+class Bignum
+  def to_nwu(unit)
+    NumericWithUnit[self, unit]
+  end
+end
+
+class Numeric
+  def to_nwu(unit)
+    NumericWithUnit[self, unit]
+  end
+end
+
+class String
+  def to_nwu(mthd=:to_r)
+    m = self.match /(?<value>.+) (?<unit>.+)/
+    NumericWithUnit[m[:value].__send__(mthd), m[:unit]]
+  end
+end
+
+
+

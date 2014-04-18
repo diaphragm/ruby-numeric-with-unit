@@ -204,7 +204,8 @@ class Unit
   
   # 文字列を配列にパース
   # ex. 'J/(kg.K)' -> [#<Unit:J>, ['/', #<Unit:kg>, '.', #<Unit:K>]]
-  def self.parse_1st(unit_str) # とても手続き的な書き方で禿げる
+  # とても手続き的な書き方で禿げる
+  def self.parse_1st(unit_str) 
     u = @@list.select{|u| u.symbol == unit_str}.last
     return u if u
     
@@ -309,7 +310,7 @@ class Unit
   end
   
   def dimension_equal?(other_unit)
-    (@dimension.keys && other_unit.dimension.keys).all?{|k|
+    (@dimension.keys || other_unit.dimension.keys).all?{|k|
       @dimension[k] == other_unit.dimension[k]
     }
   end
@@ -332,13 +333,20 @@ class Unit
   def **(num)
     if num.zero?
       self.class.new
-    elsif num < 0
-      (self.class.new) / (self**(num.abs))
     else
-      nu = Array.new(num.abs, self).reduce(:*)
+      self.class.new do |conf|
+        # ここto_iでOKか？v*numが整数じゃなければraiseすべき？
+        @derivation.each{|k, v| conf.derivation[k] = (v*num).to_i}
+      end
     end
+#    if num.zero?
+#      self.class.new
+#    elsif num < 0
+#      (self.class.new) / (self**(num.abs))
+#    else
+#      nu = Array.new(num.abs, self).reduce(:*)
+#    end
   end
-  
 end
 
 class Unit

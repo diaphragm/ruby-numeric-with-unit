@@ -1,39 +1,51 @@
 
+# モンキーパッチ的なユーティリティ群
+
+require 'mathn'
 require 'nwu'
 
 class NumericWithUnit
   def method_missing(*args)
-    unit = args.first.to_s.gsub('_', '/')
-    begin
-      @unit *= Unit[unit]
-      self
-    rescue Unit::NoUnitError
-      super
+    unit_str = args.first.to_s.gsub('_', '/')
+    unit_chain_util(Unit[unit_str])
+  rescue Unit::NoUnitError
+    super
+  end
+  
+  attr_writer :unit_chain
+  
+  private
+  def unit_chain_util(unit)
+    ucs = @unit_chain || []
+    ucs.map!{|nwu, u| [nwu, u * unit]}
+    ucs << [self, unit]
+    
+    uc = ucs.select{|nwu, u|
+      nwu.unit.dimension_equal? u
+    }.last
+    
+    if uc
+      nwu, nu = *uc
+      nwu[nu]
+    else
+      nnwu = self.class.new(@value, @unit*unit)
+      nnwu.unit_chain = ucs
+      nnwu
     end
   end
 end
 
 class NumericWithUnit
   module NumUtil
-    def to_nwu(unit)
-      NumericWithUnit[self, unit]
+    def [](unit)
+      NumericWithUnit[self.rationalize, unit] # ratoinalize
     end
-    alias :[] :to_nwu
     
     def method_missing(*args)
-      unit = args.first.to_s.gsub('_', '/')
-      begin
-        NumericWithUnit[self, unit]
-      rescue Unit::NoUnitError
-        super
-      end
-    end
-  end
-  
-  module StrUtil
-    def to_nwu(mthd=:to_r)
-      m = self.match /(?<value>.+) (?<unit>.+)/
-      NumericWithUnit[m[:value].__send__(mthd), m[:unit]]
+      unit_str = args.first.to_s.gsub('_', '/')
+      self[unit_str]
+    rescue Unit::NoUnitError
+      super
     end
   end
 end
@@ -51,6 +63,10 @@ class Numeric
 end
 
 
-class String
-  prepend NumericWithUnit::StrUtil
+
+# Monkey Patch
+class NumericWithUnit
+  def inspect
+    "#{@value.to_f} [#{@unit.symbol}] #{unit.dimension}"
+  end
 end

@@ -3,6 +3,7 @@
 # SI base units & SI derived units & Units in use with SI
 # 
 
+require 'mathn'
 require 'nwu/unit'
 
 # Dimensionless
@@ -91,9 +92,9 @@ Unit['Hz'] = '1/s'
 
 # Angle
 Unit['rad'] = 'm/m'
-Unit['°'] = Math::PI/180.0, 'rad'
-Unit['′'] = 1.0/60.0, '°'
-Unit['″'] = 1.0/60.0, '′'
+Unit['°'] = Math::PI/180, 'rad'
+Unit['′'] = 1/60, '°'
+Unit['″'] = 1/60, '′'
 
 # Solid Angle
 Unit['sr'] = 'm2/m2'
@@ -166,27 +167,27 @@ Unit['kat'] = 'mol/s'
 #
 
 # Time
-Unit['min'] = 60.0, 's'
-Unit['hr'] = 60.0, 'min'
+Unit['min'] = 60, 's'
+Unit['hr'] = 60, 'min'
 
 # Area
-Unit['ha'] = 10000.0, 'm2'
-Unit['a'] = 1.0/100.0 , 'ha'  # for compatible
+Unit['ha'] = 10000, 'm2'
+Unit['a'] = 1/100, 'ha'  # for compatible
 
 # Volume
 Unit['L'] = 'dm3'
 
 # Mass
-Unit['t'] = 1000.0, 'kg'
+Unit['t'] = 1000, 'kg'
 
 # Energy
-Unit['eV'] = 1.6021765314e-19, 'J'
+Unit['eV'] = 1.6021765314e-19.rationalize, 'J'
 
 # Mass
-Unit['u'] = 1.6605388628e-27, 'kg'
+Unit['u'] = 1.6605388628e-27.rationalize, 'kg'
 Unit['Da'] = 'u'
 
 # Length
-Unit['ua'] = 1.495978706916e11, 'm'
+Unit['ua'] = 1.495978706916e11.rationalize, 'm'
 
 
