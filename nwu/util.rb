@@ -1,4 +1,3 @@
-
 # モンキーパッチ的なユーティリティ群
 
 require 'mathn'
@@ -62,11 +61,3 @@ class Numeric
   prepend NumericWithUnit::NumUtil
 end
 
-
-
-# Monkey Patch
-class NumericWithUnit
-  def inspect
-    "#{@value.to_f} [#{@unit.symbol}] #{unit.dimension}"
-  end
-end
