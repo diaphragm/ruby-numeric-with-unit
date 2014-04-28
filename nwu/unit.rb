@@ -199,15 +199,15 @@ class Unit
   
   def self.parse(unit_str)
     a = parse_1st(unit_str)
-    a.is_a?(Array) ? parse_2nd(a) : a
+    parse_2nd([a])
   end
   
   # 文字列を配列にパース
   # ex. 'J/(kg.K)' -> [#<Unit:J>, ['/', #<Unit:kg>, '.', #<Unit:K>]]
   # とても手続き的な書き方で禿げる
   def self.parse_1st(unit_str) 
-    u = @@list.select{|u| u.symbol == unit_str}.last
-    return u if u
+    i = @@list.rindex{|u| u.symbol == unit_str}
+    return @@list[i] if i
     
     return unit_str if unit_str =~ /^[\.\/]$/
     
@@ -310,7 +310,7 @@ class Unit
   end
   
   def dimension_equal?(other_unit)
-    (@dimension.keys || other_unit.dimension.keys).all?{|k|
+    (@dimension.keys | other_unit.dimension.keys).all?{|k|
       @dimension[k] == other_unit.dimension[k]
     }
   end

@@ -20,12 +20,8 @@ class NumericWithUnit
     ucs.map!{|nwu, u| [nwu, u * unit]}
     ucs << [self, unit]
     
-    uc = ucs.select{|nwu, u|
-      nwu.unit.dimension_equal? u
-    }.last
-    
-    if uc
-      nwu, nu = *uc
+    if i = ucs.index{|nwu, u| nwu.unit.dimension_equal? u}
+      nwu, nu = *ucs[i]
       nwu[nu]
     else
       nnwu = self.class.new(@value, @unit*unit)
@@ -62,11 +58,3 @@ class Numeric
   prepend NumericWithUnit::NumUtil
 end
 
-
-
-# Monkey Patch
-class NumericWithUnit
-  def inspect
-    "#{@value.to_f} [#{@unit.symbol}] #{unit.dimension}"
-  end
-end

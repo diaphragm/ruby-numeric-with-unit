@@ -3,7 +3,7 @@ require 'nwu/base_unit'
 
 Unit['yd'] =  0.9144 , 'm'
 Unit['ft'] = 1.0/3.0, 'yd'
-Unit['th'] = 1.0/12000.0 'ft'
+Unit['th'] = 1.0/12000.0, 'ft'
 Unit['in'] = 1.0/12.0, 'ft'
 Unit['ch'] = 66, 'ft'
 Unit['fur'] = 660, 'ft'

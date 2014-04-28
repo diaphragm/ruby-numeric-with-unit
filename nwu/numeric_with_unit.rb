@@ -45,7 +45,7 @@ class NumericWithUnit
     new_unit = unit.is_a?(Unit) ? unit : Unit[unit]
     
     unless @unit.dimension_equal? new_unit
-      raise DimensionError, "Dimensions are different between #{@unit.dimension} #{new_unit.dimension}"
+      raise DimensionError, "Dimensions are different between #{@unit.symbol}#{@unit.dimension} #{new_unit.symbol}#{new_unit.dimension}"
     end
     
     new_value = new_unit.from_si(@unit.to_si(@value))
@@ -123,7 +123,7 @@ class NumericWithUnit
   end
   
   def multiply_with_unit(other)
-    ou = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
+    onwu = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
       other
     elsif @unit.dimension_equal? other.unit
       other[@unit]
@@ -133,11 +133,11 @@ class NumericWithUnit
       other
     end
     
-    self.class.new(@value * ou.value, @unit * ou.unit)
+    self.class.new(@value * onwu.value, @unit * onwu.unit)
   end
   
   def devide_with_unit(other)
-    ou = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
+    onwu = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
       other
     elsif @unit.dimension_equal? other.unit
       other[@unit]
@@ -147,7 +147,7 @@ class NumericWithUnit
       other
     end
     
-    self.class.new(@value / ou.value, @unit / ou.unit)
+    self.class.new(@value / onwu.value, @unit / onwu.unit)
   end
   
 end
