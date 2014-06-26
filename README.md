@@ -7,11 +7,11 @@ ruby-numeric-with-unit
 ======================
 
     require 'nwu'
-    a = NumericWithUnit[50, 'L/min']
-    b = NumericWithUnit[3, 'm3/hr']
+    a = NumericWithUnit.new(50, 'L/min')
+    b = 3.to_nwu('m3/hr') # Numeric#to_nwuを追加します。
     puts x = a + b
     #=> 100 L/(min)
-    c = NumericWithUnit[30, 'min']
+    c = NumericWithUnit.new(30, 'min')
     puts y = x * c
     #=> 3000 L
     puts y['m3']
@@ -20,12 +20,9 @@ ruby-numeric-with-unit
     require 'nwu/util'
     puts (50['L/min'] + 3['m3/hr'] ) * 30['min']
     #=> 3000 L
-    puts (50.L_min + 3.m3_hr) * 30.min
-	#=> 3000 L
 
 * `require 'nwu'すると'mathn'も`require`されます。
 * `require 'nwu/util'`すると`Numeric#[]`と`Fixnum#[]`と`Bignum#[]`がオーバーライドされるので注意。
-* `require 'nwu/util'`すると`Numeric#method_missing`と`Fixnum#method_missing`と`Bignum#method_missing`がオーバーライドされるので注意。
 
 
 class Unit
@@ -96,4 +93,4 @@ class NumericWithUnit
     km = Unit['km']
     a = NumericWithUnit.new(100, km)
 
-足したり引いたり掛けたり割ったりできます。
+足したり引いたり掛けたり割ったり累乗したりできます。
