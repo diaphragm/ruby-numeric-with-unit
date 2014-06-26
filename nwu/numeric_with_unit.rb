@@ -69,7 +69,7 @@ class NumericWithUnit
     else
       self.class.new(other, Unit.new)
     end
-    add_with_otunit(nwu)
+    add_with_other_unit(nwu)
   end
   
   def -(other)
