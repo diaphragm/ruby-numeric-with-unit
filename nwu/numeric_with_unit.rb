@@ -1,12 +1,9 @@
+# coding: utf-8
 
 require 'nwu/unit'
 
 class NumericWithUnit
   include Comparable
-  
-  def self.[](value, unit)
-    new(value, unit)
-  end
   
   attr_reader :value, :unit
   
@@ -16,16 +13,21 @@ class NumericWithUnit
   end
   
   def inspect
-    "#{@value.inspect} [#{@unit.symbol}] #{unit.dimension}"
+    "#{@value.inspect} [#{@unit.symbol}] #{unit.dimension.inspect}"
   end
   
   def to_s
-    "#{@value} #{@unit}"
+    "#{@value.to_s} #{@unit.symbol}"
   end
   
+  # otherがNumericWithUnitだったらsi単位に変換して比較、そうでなければvaluを比較
   def <=>(other)
-    if @unit.dimension_equal? other.unit
-      @unit.to_si(@value) <=> other.unit.to_si(other.value)
+    if other.is_a?(self.class)
+      if @unit.dimension_equal? other.unit
+        @unit.to_si(@value) <=> other.unit.to_si(other.value)
+      end
+    else
+      self.value <=> other
     end
   end
   
@@ -67,7 +69,7 @@ class NumericWithUnit
     else
       self.class.new(other, Unit.new)
     end
-    add_with_unit(nwu)
+    add_with_otunit(nwu)
   end
   
   def -(other)
@@ -77,7 +79,7 @@ class NumericWithUnit
   def *(other)
     case other
     when self.class
-      multiply_with_unit(other)
+      multiply_with_other_unit(other)
     else
       self.class.new(@value*other, @unit)
     end
@@ -86,14 +88,14 @@ class NumericWithUnit
   def /(other)
     case other
     when self.class
-      devide_with_unit(other)
+      devide_with_other_unit(other)
     else
       self.class.new(@value/other, @unit)
     end
   end
   
   def coerce(other)
-    if self.class == other.class
+    if other.is_a?(other.class)
       [other, self]
     else
       [self.class.new(other, Unit.new), self]
@@ -111,7 +113,7 @@ class NumericWithUnit
   
   private
   
-  def add_with_unit(other)
+  def add_with_other_unit(other)
     if @unit.dimension_equal? other.unit
       v1 = @unit.to_si(@value)
       v2 = other.unit.to_si(other.value)
@@ -122,7 +124,7 @@ class NumericWithUnit
     end
   end
   
-  def multiply_with_unit(other)
+  def multiply_with_other_unit(other)
     onwu = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
       other
     elsif @unit.dimension_equal? other.unit
@@ -136,7 +138,7 @@ class NumericWithUnit
     self.class.new(@value * onwu.value, @unit * onwu.unit)
   end
   
-  def devide_with_unit(other)
+  def devide_with_other_unit(other)
     onwu = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
       other
     elsif @unit.dimension_equal? other.unit
@@ -160,28 +162,26 @@ end
 
 class Fixnum
   def to_nwu(unit)
-    NumericWithUnit[self, unit]
+    NumericWithUnit.new(self, unit)
   end
 end
 
 class Bignum
   def to_nwu(unit)
-    NumericWithUnit[self, unit]
+    NumericWithUnit.new(self, unit)
   end
 end
 
 class Numeric
   def to_nwu(unit)
-    NumericWithUnit[self, unit]
+    NumericWithUnit.new(self, unit)
   end
 end
 
 class String
   def to_nwu(mthd=:to_r)
-    m = self.match /(?<value>.+) (?<unit>.+)/
+    m = self.match /(?<value>.+) (?<unit>.+)/ # 適当
     NumericWithUnit[m[:value].__send__(mthd), m[:unit]]
   end
 end
-
-
 

@@ -1,3 +1,4 @@
+# coding: utf-8
 
 class NumericWithUnit
   Version = '0.0.1'

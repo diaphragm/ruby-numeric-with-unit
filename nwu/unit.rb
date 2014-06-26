@@ -1,3 +1,4 @@
+# coding: utf-8
 
 class Unit
   class Config
@@ -12,7 +13,6 @@ class Unit
       @to_si = nil
       @derivation = Hash.new(0)
       @si = false
-      @proportional = nil
       
       @parent = parent
     end
@@ -26,7 +26,7 @@ class Unit
         @from_si ||= ->(x){x}
         @to_si ||= ->(x){x}
         @derivation[@parent] += 1 unless @parent.nil?
-      else
+      else # configにderivatoinが与えられた時は、derivatoinをもとに@dimension,@symbol,@to_si,@from_siを設定
         h = @derivation.sort_by{|u,v| u.symbol}.sort_by{|u,v| v} # ←どうしよう
         
         s1 = h.select{|u,v| v > 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}.join('.')
@@ -43,14 +43,11 @@ class Unit
           prc = if v > 0
             ->(x){u.from_si(x)}
           else
-            ->(x){x/(u.from_si(1)-u.from_si(0))}
+            ->(x){x/(u.from_si(1)-u.from_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
           end
           [prc, v.abs]
         }.map{|prc,v|
-          ->(x){
-            v.times{x = prc[x]}
-            x
-          }
+          ->(x){ v.times{x = prc[x]}; x }
         }.reduce{|memo, prc|
           ->(x){memo[prc[x]]}
         }
@@ -59,20 +56,15 @@ class Unit
           prc = if v > 0
             ->(x){u.to_si(x)}
           else
-            ->(x){x/(u.to_si(1)-u.to_si(0))}
+            ->(x){x/(u.to_si(1)-u.to_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
           end
           [prc, v.abs]
         }.map{|prc,v|
-          ->(x){
-            v.times{x = prc[x]}
-            x
-          }
+          ->(x){ v.times{x = prc[x]}; x }
         }.reduce{|memo, prc|
           ->(x){memo[prc[x]]}
         }
       end
-      
-      @proportional = (@from_si[0].zero? and @to_si[0].zero?) ? true : false
       
       self
     end
@@ -287,8 +279,8 @@ class Unit
     self.class.new do |conf|
       conf.symbol = new_symbol
       conf.dimension = @dimension
-      conf.from_si = ->(x){from_si(x) / factor}
-      conf.to_si = ->(x){factor * to_si(x)}
+      conf.from_si = ->(x){from_si(x / factor)}
+      conf.to_si = ->(x){to_si(x * factor)}
     end
   end
   
@@ -339,13 +331,6 @@ class Unit
         @derivation.each{|k, v| conf.derivation[k] = (v*num).to_i}
       end
     end
-#    if num.zero?
-#      self.class.new
-#    elsif num < 0
-#      (self.class.new) / (self**(num.abs))
-#    else
-#      nu = Array.new(num.abs, self).reduce(:*)
-#    end
   end
 end
 
