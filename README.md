@@ -73,10 +73,8 @@ Unit<<, Unit[], Unit[]=
       conf.to_si{|x| x*60*60}
     end
      
-    puts Unit['km2'].symbol
-    #=> km2
-    puts Unit['km/hr'].symbol
-    #=> km/(hr)
+    puts Unit['km2'].symbol　#=> km2
+    puts Unit['km/hr'].symbol　#=> km/(hr)
 
 基本単位として登録されている単位は、`Unit.list`で得られます。
 
@@ -121,16 +119,18 @@ NumericWithUnit#unit
 ----------------------
 Unitオブジェクトを返します。
 
-NumericWithUnit#[](new_unit), NumericWithUnit#to_nwu(new_unit)
+NumericWithUnit#\[\](new_unit), NumericWithUnit#to_nwu(new_unit)
 ----------------------
-new_unitに変換したNumericWithUnitオブジェクトを返します。  
-次元の異なる単位を指定した場合は、NumericWithUnit::DimensionErrorが発生します。
+new_unitに変換したNumericWithUnitオブジェクトを返します。
+
+selfと次元の異なる単位を指定した場合は、NumericWithUnit::DimensionErrorが発生します。
 
 NumericWithUnit#+(other), NumericWithUnit#-(other)
 ----------------------
 otherがNumericWithUnitクラスの場合、selfの単位に変換し数値を加減したNumericWithUnitオブジェクトを返します。  
 otherがNumericWithUnitクラスでない場合、otherを無次元のNumericWithUnitにした上で加減します。
-ohterとself次元の異なる場合は、NumericWithUnit#DimensionErrorが発生します。
+
+ohterとselfの次元が異なる場合は、NumericWithUnit#DimensionErrorが発生します。
 
 NumericWithUnit#*(ohter), NumerichWithUnit#/(other)
 ----------------------
