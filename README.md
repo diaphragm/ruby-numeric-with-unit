@@ -13,14 +13,13 @@ ruby-numeric-with-unit
 	puts length #=> 10 m
 	puts length['cm'] #=> 100 cm
 
-	time = 10.to_nwu('s') #Fixnum#to_nwuが追加されます。これを用いてもOKです。10[s]を表すオブジェクトです。
+	time = 10.to_nwu('s') #Fixnum#to_nwuが追加されるので、これを用いてもOKです。10[s]を表すオブジェクトです。
 	puts time #=>  10 s
 	puts time['min'] #=> 0.16666666666666666 min
 
 	speed = length / time
 	puts speed #=> 1 m/(s)
 	puts speed['km/hr'] #=> 3.6 km/(hr)
-
 
 	require 'nwu/util' #自然な表記で記述できるようにします。
 	puts (10['m'] / 10['s'] )['km/hr'] #=> 3.6 km/(hr)
@@ -43,8 +42,8 @@ Unit.new
     km = Unit.new do |conf|
       conf.symbol = 'km'
       conf.dimension[:L] = 1
-      conf.from_si = ->(x){x/1000}
-      conf.to_si = ->(x){x*1000}
+      conf.from_si{|x| x/1000}
+      conf.to_si{|x| x*1000}
     end
 
 `conf.from_si`と`conf.to_si`で、SI基本単位で表した場合の変換式を設定します。
@@ -95,10 +94,7 @@ Unit<<, Unit[], Unit[]=
 
 class NumericWithUnit
 ======================
-単位の情報を持った数値を表すクラスです。
-
-    km = Unit['km']
-    a = NumericWithUnit.new(100, km)
+単位の情報を持った数値を表すクラスです。  
 
 単位換算したり足したり引いたり掛けたり割ったり累乗したりできます。
 
@@ -140,5 +136,23 @@ otherがNumericWithUnitクラスでない場合、otherを無次元のNumericWit
 NumericWithUnit#**(num)
 ----------------------
 selfの単位をnum乗した組立単位を持つ、数値をnum乗したNumericWithUnitオブジェクトを返します。
+
+
+単位を表す文字列のフォーマット
+======================
+Unit[]や、NumericWithUnit#[]には、単位を表す文字列を渡すことができます。
+例を示します。
+
+- m
+- cm
+- m2
+- kW.hr
+- kg/cm2
+- m.s-1
+- J/kg/K
+- kcal/(hr.m2.℃)
+
+先頭に接頭辞、末尾に指数をつけた基本単位を、"."または"/"で繋いだ形で表記します。
+"()"で基本単位として括ることもできます。
 
 
