@@ -159,8 +159,7 @@ Unit['min'] = 60, 's'
 Unit['hr'] = 60, 'min'
 
 # Area
-Unit['ha'] = 10000, 'm2'
-Unit['a'] = 1/100, 'ha'  # for compatible
+Unit['a'] = 100, 'm2'
 
 # Volume
 Unit['L'] = 'dm3'
