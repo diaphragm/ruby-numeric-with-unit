@@ -6,23 +6,31 @@ ruby-numeric-with-unit
 使い方
 ======================
 
-    require 'nwu'
-    a = NumericWithUnit.new(50, 'L/min')
-    b = 3.to_nwu('m3/hr') # Numeric#to_nwuを追加します。
-    puts x = a + b
-    #=> 100 L/(min)
-    c = NumericWithUnit.new(30, 'min')
-    puts y = x * c
-    #=> 3000 L
-    puts y['m3']
-    #=> 3 m3
-     
-    require 'nwu/util'
-    puts (50['L/min'] + 3['m3/hr'] ) * 30['min']
-    #=> 3000 L
+	require 'nwu'
 
-* `require 'nwu'すると'mathn'も`require`されます。
-* `require 'nwu/util'`すると`Numeric#[]`と`Fixnum#[]`と`Bignum#[]`がオーバーライドされるので注意。
+	#例1
+	length = NumericWithUnit.new(10, 'm') #10[m]を表すオブジェクトです。
+	puts length #=> 10 m
+	puts length['cm'] #=> 100 cm
+
+	time = 10.to_nwu('s') #Fixnum#to_nwuが追加されます。これを用いてもOKです。10[s]を表すオブジェクトです。
+	puts time #=>  10 s
+	puts time['min'] #=> 0.16666666666666666 min
+
+	speed = length / time
+	puts speed #=> 1 m/(s)
+	puts speed['km/hr'] #=> 3.6 km/(hr)
+
+
+	require 'nwu/util' #自然な表記で記述できるようにします。
+	puts (10['m'] / 10['s'] )['km/hr'] #=> 3.6 km/(hr)
+
+	#例2
+	puts (50['L/min'] + 3['m3/hr'] ) * 30['min'] #=> 3000 L
+
+
+* `require 'nwu'`すると'mathn'も`equire`されます。
+* `require 'nwu/util'`すると`Numeric#[]`と`Fixnum#[]`と`Bignum#[]`がオーバーライドされます。注意。
 
 
 class Unit
@@ -49,8 +57,8 @@ Unit#cast
     mi = km.cast('mi', 1.609344)
 
 で生成できます。  
-ただし、比例関係だけに限ります。  
-℃と℉のような関係の場合は`Unit.new`で別に定義して下さい。
+ただし、n倍だけの関係に限ります。
+℃と℉のような関係の場合は`Unit.new`で新たに生成して下さい。
 
 Unit<<, Unit[], Unit[]=
 ----------------------
@@ -86,6 +94,7 @@ Unit<<, Unit[], Unit[]=
 * 'nwu/imperial_unit' (未完成)
 * 'nwu/natural_unit' (未完成)
 
+
 class NumericWithUnit
 ======================
 単位の情報を持った数値を表すクラスです。
@@ -93,4 +102,43 @@ class NumericWithUnit
     km = Unit['km']
     a = NumericWithUnit.new(100, km)
 
-足したり引いたり掛けたり割ったり累乗したりできます。
+単位換算したり足したり引いたり掛けたり割ったり累乗したりできます。
+
+NumericWithUnit.new(value, unit)
+----------------------
+valueの数値とunitの単位を持つNumericWithUnitオブジェクトを返します。
+unitには単位を表す文字列またはUnitクラスのオブジェクトを渡します。
+
+Numeric#to_nwu(unit), Fixnum#to_nwu(unit), Bignum#to_nwu(unit)
+----------------------
+NumericWithUnit.new(self, unit)を返します。
+
+NumericWithUnit#value
+----------------------
+数値を返します。
+
+NumericWithUnit#unit
+----------------------
+Unitオブジェクトを返します。
+
+NumericWithUnit#[](new_unit), NumericWithUnit#to_nwu(new_unit)
+----------------------
+new_unitに変換したNumericWithUnitオブジェクトを返します。  
+次元の異なる単位を指定した場合は、NumericWithUnit::DimensionErrorが発生します。
+
+NumericWithUnit#+(other), NumericWithUnit#-(other)
+----------------------
+otherがNumericWithUnitクラスの場合、selfの単位に変換し数値を加減したNumericWithUnitオブジェクトを返します。  
+otherがNumericWithUnitクラスでない場合、otherを無次元のNumericWithUnitにした上で加減します。
+ohterとself次元の異なる場合は、NumericWithUnit#DimensionErrorが発生します。
+
+NumericWithUnit#*(ohter), NumerichWithUnit#/(other)
+----------------------
+otherがNumericWithUnitクラスの場合、selfとotherの組立単位を持つ、数値を乗除したNumericWithUnitオブジェクトを返します。  
+otherがNumericWithUnitクラスでない場合、otherを無次元のNumericWithUnitにした上で乗除します。
+
+NumericWithUnit#**(num)
+----------------------
+selfの単位をnum乗した組立単位を持つ、数値をnum乗したNumericWithUnitオブジェクトを返します。
+
+
