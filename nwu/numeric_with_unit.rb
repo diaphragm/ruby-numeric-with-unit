@@ -20,14 +20,10 @@ class NumericWithUnit
     "#{@value.to_s} #{@unit.symbol}"
   end
   
-  # otherがNumericWithUnitだったらsi単位に変換して比較、そうでなければvaluを比較
+  # otherがNumericWithUnitで次元が同じだったらsi単位に変換して比較、そうでなければ比較できない(nil)
   def <=>(other)
-    if other.is_a?(self.class)
-      if @unit.dimension_equal? other.unit
-        @unit.to_si(@value) <=> other.unit.to_si(other.value)
-      end
-    else
-      self.value <=> other
+    if other.is_a?(self.class) and @unit.dimension_equal? other.unit
+      @unit.to_si(@value) <=> other.unit.to_si(other.value)
     end
   end
   
@@ -109,7 +105,8 @@ class NumericWithUnit
   def root(num)
     self**(Rational(1,num))
   end
-  def sqrt; root(2) end
+  def sqrt; root(2) end # 平方根
+  def cbrt; root(3) end # 立方根
   
   private
   
@@ -125,31 +122,26 @@ class NumericWithUnit
   end
   
   def multiply_with_other_unit(other)
-    onwu = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
-      other
-    elsif @unit.dimension_equal? other.unit
-      other[@unit]
-    elsif not (h = @unit.derivation.select{|k,v| k.dimension_equal? other.unit}).empty?
-      other[ h.sort_by{|k,v| v}.first.first ]
-    else
-      other
-    end
-    
+    onwu = fit_other_unit(other)
     self.class.new(@value * onwu.value, @unit * onwu.unit)
   end
   
   def devide_with_other_unit(other)
-    onwu = if not @unit.derivation.select{|k,v| k == other.unit}.empty?
+    onwu = fit_other_unit(other)
+    self.class.new(@value / onwu.value, @unit / onwu.unit)
+  end
+
+  # なるべくselfと同じ単位を使用するようにotherを変換します。
+  def fit_other_unit(other)
+    if @unit.derivation.any?{|k,v| k == other.unit} # [L/min]*[min]などのケース
       other
-    elsif @unit.dimension_equal? other.unit
+    elsif h = @unit.derivation.find{|k,v| k.dimension_equal? other.unit} # [L/min]*[s]などのケース
+      other[ h.first ]
+    elsif @unit.dimension_equal? other.unit # [mm]*[cm]などのケース
       other[@unit]
-    elsif not (h = @unit.derivation.select{|k,v| k.dimension_equal? other.unit}).empty?
-      other[ h.sort_by{|k,v| v}.first.first ]
     else
       other
     end
-    
-    self.class.new(@value / onwu.value, @unit / onwu.unit)
   end
   
 end
