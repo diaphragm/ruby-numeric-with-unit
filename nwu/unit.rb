@@ -3,7 +3,6 @@
 class Unit
   class Config
     attr_reader :symbol, :dimension, :derivation
-#    attr_reader :from_si, :to_si
     attr_reader :si, :proportional
     
     def initialize(parent=nil)
@@ -194,6 +193,7 @@ class Unit
     parse_2nd([a])
   end
   
+
   # 文字列を配列にパース
   # ex. 'J/(kg.K)' -> [#<Unit:J>, ['/', #<Unit:kg>, '.', #<Unit:K>]]
   # とても手続き的な書き方で禿げる
@@ -218,7 +218,8 @@ class Unit
     
     raise NoUnitError, "\"#{unit_str}\" is not assigned"
   end
-  
+  private_class_method :parse_1st
+
   # 配列を組立単位に変換
   # derivationにそのまま突っ込んだほうがすっきりする気がする
   def self.parse_2nd(unit_array)
@@ -246,6 +247,7 @@ class Unit
     
     buff_ary.reduce(:*)
   end
+  private_class_method :parse_2nd
   
 end
 
@@ -269,9 +271,7 @@ class Unit
     @dimension = config.dimension
     @from_si = config.from_si
     @to_si = config.to_si
-    
-#    config.derivation[self] += 1 if config.derivation.empty?
-    
+        
     @derivation = config.derivation
   end
   
@@ -307,6 +307,14 @@ class Unit
     }
   end
   
+
+  def ==(other)
+    if other.is_a?(self.class)
+      symbol == other.symbol and dimension == other.dimension
+    else
+      super
+    end
+  end
   
   def *(other_unit)
     self.class.new do |conf|
