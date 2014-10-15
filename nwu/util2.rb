@@ -3,7 +3,6 @@
 # 123.m2.K_W のように書けるようにします。
 # method_missing をオーバーライドします。
 
-require 'mathn'
 require 'nwu'
 
 class NumericWithUnit
