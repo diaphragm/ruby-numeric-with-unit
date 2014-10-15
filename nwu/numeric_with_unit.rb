@@ -91,7 +91,7 @@ class NumericWithUnit
   end
   
   def coerce(other)
-    if other.is_a?(other.class)
+    if other.is_a?(self.class)
       [other, self]
     else
       [self.class.new(other, Unit.new), self]
@@ -99,6 +99,12 @@ class NumericWithUnit
   end
   
   def **(num)
+    # Dimension Check
+    @unit.derivation.each do |k,v|
+      x = v * num
+      raise DimensionError, "Dimension of #{k.symbol}(#{v}*#{num}) must be Integer" unless (v * num).integer?
+    end
+    
     self.class.new(@value**num, @unit**num)
   end
   
