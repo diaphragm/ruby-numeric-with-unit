@@ -4,7 +4,6 @@
 # 1234['m3/kg']のように書けるようにします。
 # Numeric#[]、Fixnum#[]、Bignum#[]をオーバーライドします。
 
-require 'mathn'
 require 'nwu'
 
 class NumericWithUnit
