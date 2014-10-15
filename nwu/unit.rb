@@ -25,7 +25,7 @@ class Unit
         @from_si ||= ->(x){x}
         @to_si ||= ->(x){x}
         @derivation[@parent] += 1 unless @parent.nil?
-      else # configにderivatoinが与えられた時は、derivatoinをもとに@dimension,@symbol,@to_si,@from_siを設定
+      else # configにderivationが与えられた時は、derivationをもとに@dimension,@symbol,@to_si,@from_siを設定
         h = @derivation.sort_by{|u,v| u.symbol}.sort_by{|u,v| v} # ←どうしよう
         
         s1 = h.select{|u,v| v > 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}.join('.')
@@ -257,7 +257,8 @@ class Unit
   
   # Instance Methods
   
-  attr_accessor :symbol
+#  attr_accessor :symbol
+  attr_reader :symbol
   attr_reader :dimension, :derivation
   
   def initialize
@@ -271,7 +272,7 @@ class Unit
     @dimension = config.dimension
     @from_si = config.from_si
     @to_si = config.to_si
-        
+    
     @derivation = config.derivation
   end
   
@@ -335,8 +336,10 @@ class Unit
       self.class.new
     else
       self.class.new do |conf|
-        # ここto_iでOKか？v*numが整数じゃなければraiseすべき？
-        @derivation.each{|k, v| conf.derivation[k] = (v*num).to_i}
+        # ここto_iでOKか？v*numが整数じゃなければraiseすべき？→すべき→NumericWithUnitでやるべき？
+        # Unitでは整数じゃない次数の単位は許容すべきか否か→していい気がする
+#        @derivation.each{|k, v| conf.derivation[k] = (v*num).to_i}
+        @derivation.each{|k, v| conf.derivation[k] = (v*num)}
       end
     end
   end
