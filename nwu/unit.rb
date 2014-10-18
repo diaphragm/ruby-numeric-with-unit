@@ -338,8 +338,8 @@ class Unit
       self.class.new do |conf|
         # ここto_iでOKか？v*numが整数じゃなければraiseすべき？→すべき→NumericWithUnitでやるべき？
         # Unitでは整数じゃない次数の単位は許容すべきか否か→していい気がする
-#        @derivation.each{|k, v| conf.derivation[k] = (v*num).to_i}
-        @derivation.each{|k, v| conf.derivation[k] = (v*num)}
+        # 組立単位の導出アルゴリズムが整数を前提にしているのでとりあえずto_iで
+        @derivation.each{|k, v| conf.derivation[k] = (v*num).to_i}
       end
     end
   end
