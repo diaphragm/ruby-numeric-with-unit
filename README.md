@@ -11,7 +11,7 @@ ruby-numeric-with-unit
 	#例1
 	length = NumericWithUnit.new(10, 'm') #10[m]を表すオブジェクトです。
 	puts length #=> 10 m
-	puts length['cm'] #=> 100 cm
+	puts length['cm'] #=> 1000 cm
 
 	time = 10.to_nwu('s') #Fixnum#to_nwuが追加されるので、これを用いてもOKです。10[s]を表すオブジェクトです。
 	puts time #=>  10 s
