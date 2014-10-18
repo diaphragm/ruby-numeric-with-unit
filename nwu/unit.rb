@@ -42,7 +42,7 @@ class Unit
           prc = if v > 0
             ->(x){u.from_si(x)}
           else
-            ->(x){x/(u.from_si(1)-u.from_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
+            ->(x){x.quo(u.from_si(1)-u.from_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
           end
           [prc, v.abs]
         }.map{|prc,v|
@@ -55,7 +55,7 @@ class Unit
           prc = if v > 0
             ->(x){u.to_si(x)}
           else
-            ->(x){x/(u.to_si(1)-u.to_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
+            ->(x){x.quo(u.to_si(1)-u.to_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
           end
           [prc, v.abs]
         }.map{|prc,v|
@@ -280,7 +280,7 @@ class Unit
     self.class.new do |conf|
       conf.symbol = new_symbol
       conf.dimension = @dimension
-      conf.from_si = ->(x){from_si(x / factor)}
+      conf.from_si = ->(x){from_si(x.quo(factor))}
       conf.to_si = ->(x){to_si(x * factor)}
     end
   end

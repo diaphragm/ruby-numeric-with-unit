@@ -128,17 +128,17 @@ class NumericWithUnit
   end
   
   def multiply_with_other_unit(other)
-    onwu = fit_other_unit(other)
+    onwu = adjust_other_unit(other)
     self.class.new(@value * onwu.value, @unit * onwu.unit)
   end
   
   def devide_with_other_unit(other)
-    onwu = fit_other_unit(other)
+    onwu = adjust_other_unit(other)
     self.class.new(@value / onwu.value, @unit / onwu.unit)
   end
 
   # なるべくselfと同じ単位を使用するようにotherを変換します。
-  def fit_other_unit(other)
+  def adjust_other_unit(other)
     if @unit.derivation.any?{|k,v| k == other.unit} # [L/min]*[min]などのケース
       other
     elsif h = @unit.derivation.find{|k,v| k.dimension_equal? other.unit} # [L/min]*[s]などのケース

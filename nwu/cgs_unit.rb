@@ -2,7 +2,7 @@
 
 require 'nwu/base_unit'
 
-Unit['cal'] = 4.184, 'J'
+Unit['cal'] = "4.184".to_r, 'J'
 
 Unit['Gal'] = 'cm/s2'
 

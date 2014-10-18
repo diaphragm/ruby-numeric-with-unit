@@ -42,7 +42,7 @@ class NumericWithUnit
     def method_missing(*args)
       if args.size == 1
         unit_str = args.first.to_s.gsub('_', '/')
-        self.to_nwu(unit_str)
+        self.rationalize.to_nwu(unit_str) # util2は利便性優先なのでratoinalizeしてしまいます
       else
         raise Unit::NoUnitError
       end
