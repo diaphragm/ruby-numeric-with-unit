@@ -101,8 +101,8 @@ class NumericWithUnit
   def **(num)
     # Dimension Check
     @unit.derivation.each do |k,v|
-      x = v * num
-      raise DimensionError, "Dimension of #{k.symbol}(#{v}*#{num}) must be Integer" unless (v * num).integer?
+      res = v * num
+      raise DimensionError, "Dimension of #{k.symbol}(#{v}*#{num}) must be Integer" unless res.to_i == res # 判定方法見なおせ
     end
     
     self.class.new(@value**num, @unit**num)
