@@ -1,6 +1,6 @@
 # coding: utf-8
 
-require 'nwu/unit'
+require 'numeric_with_unit/unit'
 
 class NumericWithUnit
   include Comparable
@@ -152,6 +152,8 @@ class NumericWithUnit
   
 end
 
+
+
 class NumericWithUnit
   class DimensionError < StandardError; end
 end
@@ -182,4 +184,10 @@ class String
     NumericWithUnit[m[:value].__send__(mthd), m[:unit]]
   end
 end
+
+
+
+# unit definition
+require 'numeric_with_unit/base_unit'
+require 'numeric_with_unit/common_unit'
 

@@ -1,6 +1,6 @@
 # coding: utf-8
 
-require 'nwu/base_unit'
+require 'numeric_with_unit/base_unit'
 
 Unit['yd'] =  "0.9144".to_r , 'm'
 Unit['ft'] = "1/3".to_r, 'yd'

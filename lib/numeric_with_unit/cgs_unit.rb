@@ -1,6 +1,6 @@
 # coding: utf-8
 
-require 'nwu/base_unit'
+require 'numeric_with_unit/base_unit'
 
 Unit['cal'] = "4.184".to_r, 'J'
 
