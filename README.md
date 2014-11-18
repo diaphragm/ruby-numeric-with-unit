@@ -6,7 +6,7 @@ ruby-numeric-with-unit
 使い方
 ======================
 
-	require 'nwu'
+	require 'numeric_with_unit'
 
 	#例1
 	length = NumericWithUnit.new(10, 'm') #10[m]を表すオブジェクトです。
@@ -21,24 +21,24 @@ ruby-numeric-with-unit
 	puts speed #=> 1 m/(s)
 	puts speed['km/hr'] #=> 3.6 km/(hr)
 
-	require 'nwu/util' #自然な表記で記述できるようにします。
+	require 'numeric_with_unit/util' #自然な表記で記述できるようにします。
 	puts (10['m'] / 10['s'] )['km/hr'] #=> 3.6 km/(hr)
 
 	#例2
 	puts (50['L/min'] + 3['m3/hr'] ) * 30['min'] #=> 3000 L
 
 
-* `require 'nwu/util'`すると`Numeric#[]`と`Fixnum#[]`と`Bignum#[]`がオーバーライドされます。注意。
+* `require 'numeric_with_unit/util'`すると`Numeric#[]`と`Fixnum#[]`と`Bignum#[]`がオーバーライドされます。注意。
 
 
-class Unit
+class NumericWith::Unit
 ======================
 "単位"を表すクラスです。
 
 Unit.new
 ----------------------
 
-    km = Unit.new do |conf|
+    km = NumericWith::Unit.new do |conf|
       conf.symbol = 'km'
       conf.dimension[:L] = 1
       conf.from_si{|x| x/1000}
@@ -63,32 +63,32 @@ Unit<<, Unit[], Unit[]=
 `Unit << unit`で、`unit`を基本単位として登録します。  
 基本単位として登録することで、`Unit[]`から組立単位が自動的に導出されます。
 
-    Unit << km
-    Unit << Unit.new do |conf|
+    NumericWith::Unit << km
+    NumericWith::Unit << NumericWith::Unit.new do |conf|
       conf.symbol = 'hr'
       conf.dimension[:T] = 1
       conf.from_si{|x| x/60/60}
       conf.to_si{|x| x*60*60}
     end
      
-    puts Unit['km2'].symbol　#=> km2
-    puts Unit['km/hr'].symbol　#=> km/(hr)
+    puts NumericWith::Unit['km2'].symbol　#=> km2
+    puts NumericWith::Unit['km/hr'].symbol　#=> km/(hr)
 
 基本単位として登録されている単位は、`Unit.list`で得られます。
 
 また`Unit[]=`で単位の変換と基本単位として登録を同時に行えます。
 
-    Unit['kph'] = 'km/hr'
-    Unit['ua'] = 1.495978706916e8, 'm'
+    NumericWith::Unit['kph'] = 'km/hr'
+    NumericWith::Unit['ua'] = 1.495978706916e8, 'm'
 
 ****
 基本的な単位は以下のファイルで定義済みです。  
 適宜`require`してください。
-* 'nwu/base_unit' (SI単位、SI組立単位およびSI併用単位を定義。デフォルトで`require`されます。)
-* 'nwu/common_unit'  (独断と偏見によりcommonと認定された単位。デフォルトで`require`されます。)
-* 'nwu/cgs_unit' (未完成)
-* 'nwu/imperial_unit' (未完成)
-* 'nwu/natural_unit' (未完成)
+* 'numeric_with_unit/base_unit' (SI単位、SI組立単位およびSI併用単位を定義。デフォルトで`require`されます。)
+* 'numeric_with_unit/common_unit'  (独断と偏見によりcommonと認定された単位。デフォルトで`require`されます。)
+* 'numeric_with_unit/cgs_unit' (未完成)
+* 'numeric_with_unit/imperial_unit' (未完成)
+* 'numeric_with_unit/natural_unit' (未完成)
 
 
 class NumericWithUnit
