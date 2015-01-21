@@ -22,6 +22,9 @@ class NumericWithUnit
   Unit['ton'] = 1000, 'kg'
   Unit['oz'] = "28.349523125".to_r, 'g'
   Unit['lb'] = 16, 'oz'
+  
+  # Electriccal Resistance
+  Unit['ohm'] = 'Ω'
 
   # Temperature
   Unit['degC'] = '℃'
