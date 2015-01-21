@@ -107,7 +107,6 @@ class NumericWithUnit
 
   # Electriccal Resistance
   Unit['Ω'] = 'V/A'
-  Unit['ohm'] = 'Ω'
 
   # Electriccal Conductance
   Unit['S'] = 'A/V'
@@ -131,7 +130,6 @@ class NumericWithUnit
     conf.from_si{|x| k.from_si(x)-intercept}
     conf.to_si{|x| k.to_si(x+intercept)}
   end
-  Unit['degC'] = '℃'
 
   # Luminouse flux
   Unit['lx'] = 'cd.sr'
