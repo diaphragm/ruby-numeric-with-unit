@@ -45,6 +45,7 @@ class NumericWithUnit
   Unit['ft'] = "1/3".to_r, 'yd'
   Unit['in'] = "1/12".to_r, 'ft'
   Unit['mi'] = 5280, 'ft'
+  Unit['100m'] = 100, 'm' # [kPa/100m]とか
 
   # Volume
   Unit['cc'] = 'cm3'
