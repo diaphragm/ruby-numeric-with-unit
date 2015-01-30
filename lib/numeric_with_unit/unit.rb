@@ -207,9 +207,14 @@ class NumericWithUnit
       
       return unit_str if unit_str =~ /^[\.\/]$/
       
-      # 再帰で呼び出す用
+      # for recursive calling
       rec = ->(arg){__send__(__method__, arg)}
       
+      # remove outermost parenthesis
+      m = unit_str.match(/^\((?<unit>.*)\)$/)
+      return rec[m[:unit]] if m
+      
+      # split derivation unit
       a = unit_str.scan(/(?<=\().*(?=\))|[\.\/]|[^\(\)\.\/]+/)
       return a.map{|elem| rec[elem]} if a.size > 1
       
@@ -227,7 +232,7 @@ class NumericWithUnit
     # 配列を組立単位に変換
     # derivationにそのまま突っ込んだほうがすっきりする気がする
     def self.parse_2nd(unit_array)
-      # 再帰で呼び出す用
+      # for recursive calling
       rec = ->(arg){__send__(__method__, arg)}
       
       buff_ary = []
