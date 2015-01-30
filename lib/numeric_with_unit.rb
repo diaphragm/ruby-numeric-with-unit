@@ -188,7 +188,7 @@ end
 class String
   def to_nwu(mthd=:to_r)
     m = self.match /(?<value>.+) (?<unit>.+)/ # 適当
-    NumericWithUnit[m[:value].__send__(mthd), m[:unit]]
+    NumericWithUnit.new(m[:value].__send__(mthd), m[:unit])
   end
 end
 
