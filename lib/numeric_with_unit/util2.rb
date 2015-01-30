@@ -6,9 +6,9 @@
 require 'numeric_with_unit'
 
 class NumericWithUnit
-  def method_missing(*args)
-    if args.size == 1
-      unit_str = args.first.to_s.gsub('_', '/')
+  def method_missing(name, *args)
+    if args.empty?
+      unit_str = name.to_s.gsub('_', '/')
       unit_chain_util(Unit[unit_str])
     else
       raise Unit::NoUnitError
@@ -39,9 +39,9 @@ end
 
 class NumericWithUnit
   module NumUtil
-    def method_missing(*args)
-      if args.size == 1
-        unit_str = args.first.to_s.gsub('_', '/')
+    def method_missing(name, *args)
+      if args.empty?
+        unit_str = name.to_s.gsub('_', '/')
         self.rationalize.to_nwu(unit_str) # util2は利便性優先なのでratoinalizeしてしまいます
       else
         raise Unit::NoUnitError
