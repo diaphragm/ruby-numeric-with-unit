@@ -12,33 +12,40 @@ class NumericWithUnit
     @unit = unit.is_a?(Unit) ? unit : Unit[unit]
   end
   
+  # Return String for inspect
   def inspect
     "#{@value.inspect} [#{@unit.symbol}] #{unit.dimension.inspect}"
   end
   
+  # Return String with value and unit symbol
   def to_s
     "#{@value.to_s} #{@unit.symbol}"
   end
   
-  # otherがNumericWithUnitで次元が同じだったらsi単位に変換して比較、そうでなければ比較できない(nil)
+  # If ohter is NumericWithUnit and same dimension, comparing value with converting to si.
+  # Else return nil.
   def <=>(other)
     if other.is_a?(self.class) and @unit.dimension_equal? other.unit
       @unit.to_si(@value) <=> other.unit.to_si(other.value)
     end
   end
   
+  # Return succed value with same unit.
   def succ
     self.class.new(@value.succ, @unit)
   end
   
+  # Return value.to_i
   def to_i
     @value.to_i
   end
   
+  # Return value.to_f
   def to_f
     @value.to_f
   end
   
+  # Return NumericWithUnit with given unit
   def to_nwu(unit)
     new_unit = unit.is_a?(Unit) ? unit : Unit[unit]
     
