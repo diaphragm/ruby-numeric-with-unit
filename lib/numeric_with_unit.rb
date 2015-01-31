@@ -195,6 +195,6 @@ end
 
 
 # unit definition
-require 'numeric_with_unit/base_unit'
-require 'numeric_with_unit/common_unit'
+require 'numeric_with_unit/unit_definition/base'
+require 'numeric_with_unit/unit_definition/common'
 

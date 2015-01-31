@@ -1,6 +1,6 @@
 # coding: utf-8
 
-require 'numeric_with_unit/base_unit'
+require 'numeric_with_unit/unit_definition/base'
 
 # Naural Units
 # Speed

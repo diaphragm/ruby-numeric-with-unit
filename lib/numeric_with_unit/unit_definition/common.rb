@@ -4,8 +4,7 @@
 # 独断と偏見による一般的な単位
 # 
 
-require 'numeric_with_unit/unit'
-require 'numeric_with_unit/base_unit'
+require 'numeric_with_unit/unit_definition/base'
 
 class NumericWithUnit
   # Dimensionless
