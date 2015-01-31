@@ -85,14 +85,15 @@ Unit<<, Unit[], Unit[]=
     NumericWith::Unit['kph'] = 'km/hr'
     NumericWith::Unit['ua'] = 1.495978706916e8, 'm'
 
-****
+----
 基本的な単位は以下のファイルで定義済みです。  
 適宜`require`してください。
-* 'numeric_with_unit/base_unit' (SI単位、SI組立単位およびSI併用単位を定義。デフォルトで`require`されます。)
-* 'numeric_with_unit/common_unit'  (独断と偏見によりcommonと認定された単位。デフォルトで`require`されます。)
-* 'numeric_with_unit/cgs_unit' (未完成)
-* 'numeric_with_unit/imperial_unit' (未完成)
-* 'numeric_with_unit/natural_unit' (未完成)
+
+* 'numeric_with_unit/unit_definition/base' (SI単位、SI組立単位およびSI併用単位を定義。デフォルトで`require`されます。)
+* 'numeric_with_unit/unit_definition/common'  (独断と偏見によりcommonと認定された単位。デフォルトで`require`されます。)
+* 'numeric_with_unit/unit_definition/cgs' (未完成)
+* 'numeric_with_unit/unit_definition/imperial' (未完成)
+* 'numeric_with_unit/unit_definition/natural' (未完成)
 
 
 class NumericWithUnit
