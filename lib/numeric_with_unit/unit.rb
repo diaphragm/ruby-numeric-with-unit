@@ -5,14 +5,13 @@ class NumericWithUnit
   class Unit
     class Config
       attr_reader :symbol, :dimension, :derivation
-      attr_reader :si, :proportional
+      attr_reader :si
       
       def initialize(parent=nil)
         @symbol = nil
         @dimension = Hash.new(0)
         @from_si = nil
         @to_si = nil
-        @derivation = Hash.new(0)
         @si = false
         
         @parent = parent
@@ -20,52 +19,12 @@ class NumericWithUnit
       
       def compile
         @dimension.delete_if{|k,v| v.zero?}
-        @derivation.delete_if{|k,v| v.zero?}
-        @derivation.delete_if{|k,v| k.symbol.nil?}
         
-        if @derivation.empty?
-          @from_si ||= ->(x){x}
-          @to_si ||= ->(x){x}
-          @derivation[@parent] += 1 unless @parent.nil?
-        else # configにderivationが与えられた時は、derivationをもとに@dimension,@symbol,@to_si,@from_siを設定
-          h = @derivation.sort_by{|u,v| u.symbol}.sort_by{|u,v| v} # ←どうしよう
-          
-          s1 = h.select{|u,v| v > 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}.join('.')
-          s2 = h.select{|u,v| v < 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}.join('.')
-          @symbol = s1 + (s2.empty? ? '' : "/(#{s2})")
-          
-          @derivation.each do |u,v|
-            u.dimension.each do |d,i|
-              @dimension[d] += i*v
-            end
-          end
-          
-          @from_si = @derivation.map{|u,v|
-            prc = if v > 0
-              ->(x){u.from_si(x)}
-            else
-              ->(x){x.quo(u.from_si(1)-u.from_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
-            end
-            [prc, v.abs]
-          }.map{|prc,v|
-            ->(x){ v.times{x = prc[x]}; x }
-          }.reduce{|memo, prc|
-            ->(x){memo[prc[x]]}
-          }
-          
-          @to_si = @derivation.map{|u,v|
-            prc = if v > 0
-              ->(x){u.to_si(x)}
-            else
-              ->(x){x.quo(u.to_si(1)-u.to_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
-            end
-            [prc, v.abs]
-          }.map{|prc,v|
-            ->(x){ v.times{x = prc[x]}; x }
-          }.reduce{|memo, prc|
-            ->(x){memo[prc[x]]}
-          }
-        end
+        @from_si ||= ->(x){x}
+        @to_si ||= ->(x){x}
+
+        @derivation = Hash.new(0)
+        @derivation[@parent] += 1 unless @parent.nil?
         
         self
       end
@@ -109,11 +68,6 @@ class NumericWithUnit
         raise unless [TrueClass, FalseClass].any?{|klass|arg.is_a?(klass)}
         @si = arg
       end
-      
-      def derivation=(arg)
-        raise unless arg.is_a?(Hash)
-        @derivation = arg
-      end
     end
   end
 end
@@ -156,11 +110,68 @@ class NumericWithUnit
     }
     
     # class methods
+
+    # create new unit from derivation _(for internal use)_ .
+    def self.derive
+      derivation = Hash.new(0)
+      yield(derivation)
+
+      return Unit.new if derivation.empty?
+
+      dimension = Hash.new(0)
+
+      h = derivation.sort_by{|u,v| u.symbol}.sort_by{|u,v| v} # ←どうしよう
+      
+      s1 = h.select{|u,v| v > 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}.join('.')
+      s2 = h.select{|u,v| v < 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}.join('.')
+      symbol = s1 + (s2.empty? ? '' : "/(#{s2})")
+      
+      derivation.each do |u,v|
+        u.dimension.each do |d,i|
+          dimension[d] += i*v
+        end
+      end
+
+      from_si = derivation.map{|u,v|
+        prc = if v > 0
+          ->(x){u.from_si(x)}
+        else
+          ->(x){x.quo(u.from_si(1)-u.from_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
+        end
+        [prc, v.abs]
+      }.map{|prc,v|
+        ->(x){ v.times{x = prc[x]}; x }
+      }.reduce{|memo, prc|
+        ->(x){memo[prc[x]]}
+      }
+      
+      to_si = derivation.map{|u,v|
+        prc = if v > 0
+          ->(x){u.to_si(x)}
+        else
+          ->(x){x.quo(u.to_si(1)-u.to_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
+        end
+        [prc, v.abs]
+      }.map{|prc,v|
+        ->(x){ v.times{x = prc[x]}; x }
+      }.reduce{|memo, prc|
+        ->(x){memo[prc[x]]}
+      }
+
+      self.new{|conf|
+        conf.symbol = symbol
+        conf.dimension = dimension
+        conf.from_si = from_si
+        conf.to_si = to_si
+      }
+    end
     
+    # apply to_s to arg and return parsed unit.
     def self.[](arg)
       self.parse(arg.to_s)
     end
     
+    # cast unit and add unit to base unit list at the same time.
     def self.[]=(key, arg)
       if arg.is_a?(Array) and arg.size == 2
         a = [key, arg.first]
@@ -172,10 +183,12 @@ class NumericWithUnit
       @@list << (u.is_a?(self) ? u : self[u]).cast(*a)
     end
     
+    # return base unit list.
     def self.list
       @@list.map(&:symbol)
     end
     
+    # add unit to base unit list.
     def self.<<(arg)
       if arg.is_a?(self)
         @@list << arg
@@ -184,80 +197,125 @@ class NumericWithUnit
       end
     end
     
+    # remove unit from base unit list.
     def self.delete(unit_symbol)
       @@list.delete_if{|unit| unit.symbol == unit_symbol}
     end
     
+    # create new unit and add unit to base unit list at the same time.
     def self.assign
       @@list << self.new{|config| yield(config)}
     end
-    
+
+
+    # parsing unit_str (ex. "kg", km/hr", "cm2") to (derived) unit.
     def self.parse(unit_str)
-      a = parse_1st(unit_str)
-      parse_2nd([a])
-    end
-    
+      rec = ->(arg){__send__(__method__, arg)}
 
-    # 文字列を配列にパース
-    # ex. 'J/(kg.K)' -> [#<Unit:J>, ['/', #<Unit:kg>, '.', #<Unit:K>]]
-    # とても手続き的な書き方で禿げる
-    def self.parse_1st(unit_str) 
-      i = @@list.rindex{|u| u.symbol == unit_str}
-      return @@list[i] if i
-      
-      return unit_str if unit_str =~ /^[\.\/]$/
-      
-      # for recursive calling
+      dervation_str = parse_3rd(parse_2nd(parse_1st(unit_str)))
+      derive{|derivation|
+        dervation_str.each do |unit_str, order|
+          if i = @@list.rindex{|unit| unit.symbol == unit_str}
+            derivation[@@list[i]] += order
+          elsif m = unit_str.match(/^(?<prefix>#{@@prefix.keys.join('|')})(?<unit>#{list.join('|')})$/) and m[:unit].empty?.!
+            u = rec[m[:unit]].cast(unit_str, @@prefix[m[:prefix]])
+            derivation[u] += order
+          else
+            raise NoUnitError, "[#{unit_str}] is not defined!"
+          end
+        end
+      }
+    end
+
+    def self.parse_1st(unit_str) #:nodoc:
+      return [unit_str] if @@list.rindex{|u| u.symbol == unit_str}
+
       rec = ->(arg){__send__(__method__, arg)}
       
-      # remove outermost parenthesis
-      m = unit_str.match(/^\((?<unit>.*)\)$/)
-      return rec[m[:unit]] if m
-      
-      # split derivation unit
-      a = unit_str.scan(/(?<=\().*(?=\))|[\.\/]|[^\(\)\.\/]+/)
-      return a.map{|elem| rec[elem]} if a.size > 1
-      
-      m = unit_str.match(/-?\d+$/)
-      return m.to_s if m and m.pre_match.empty?
-      return [rec[m.pre_match], m.to_s] if m
-      
-      m = unit_str.match(/^(?<prefix>#{@@prefix.keys.join('|')})(?<unit>#{list.join('|')})$/)
-      return rec[m[:unit]].cast(unit_str, @@prefix[m[:prefix]]) if m
-      
-      raise NoUnitError, "\"#{unit_str}\" is not assigned"
+      a = []
+      tmp = ''
+      nest = 0
+      unit_str.each_char do |char|
+        nest -= 1 if char == ')'
+        
+        if nest == 0
+          case char
+          when '(', ')'
+            a << rec[tmp] unless tmp.empty?
+            tmp = ''
+          when '.', '/'
+            a << tmp unless tmp.empty?
+            a << char
+            tmp = ''
+          else
+            tmp += char
+          end
+        else
+          tmp += char
+        end
+        
+        nest += 1 if char == '('
+        raise StandardError, "parse error" if nest < 0
+      end
+      a << tmp unless tmp.empty?
+      a
     end
-    private_class_method :parse_1st
 
-    # 配列を組立単位に変換
-    # derivationにそのまま突っ込んだほうがすっきりする気がする
-    def self.parse_2nd(unit_array)
-      # for recursive calling
+
+    def self.parse_2nd(unit_array) #:nodoc:
       rec = ->(arg){__send__(__method__, arg)}
-      
-      buff_ary = []
-      buff_unit = ''
-      buff_sign = 1
-      
-      unit_array.each do |elem|
-        case elem
-        when self
-          buff_ary << elem ** buff_sign
+
+      a = []
+      sign = 1
+      order = 1
+      tmp = nil
+      unit_array.each do |unit_x|
+        if tmp and not( unit_x.is_a?(String) and unit_x =~ /^\d+$/ )
+          a << {unit: tmp, order: sign*order} if tmp
+          sign = 1
+          order = 1
+          tmp = nil
+        end
+
+        case unit_x
         when '.'
-          buff_sign = 1
+          sign = 1
         when '/'
-          buff_sign = -1
-        when Array
-          buff_ary << rec[elem] ** buff_sign
-        when /^-?\d+$/
-          buff_ary[-1] **= elem.to_i
+          sign = -1
+        when /^(-?\d+)$/
+          order = $1.to_i
+        when /^(.+?)(-?\d+)$/
+          order = $2.to_i
+          tmp = $1
+        else
+          tmp = unit_x.is_a?(Array) ? rec[unit_x] : unit_x
         end
       end
-      
-      buff_ary.reduce(:*)
+      a << {unit: tmp, order: sign*order} if tmp
+      a
     end
-    private_class_method :parse_2nd
-    
+
+    def self.parse_3rd(unit_x, derivation=Hash.new(0), order=1) #:nodoc:
+      rec = ->(*arg){__send__(__method__, *arg)}
+
+      if unit_x.is_a?(Hash)
+        if unit_x[:unit].is_a?(Array)
+          rec[unit_x[:unit], derivation, order * unit_x[:order]]
+        else
+          derivation[unit_x[:unit]] += (order * unit_x[:order])
+        end
+      elsif unit_x.is_a?(Array)
+        unit_x.each do |x|
+          rec[x, derivation, order]
+        end
+      else
+        raise StandardError, "maybe bug"
+      end
+      derivation
+    end
+
+    private_class_method :parse_1st, :parse_2nd, :parse_3rd
+
   end
 
 
@@ -266,12 +324,10 @@ class NumericWithUnit
     
     # Instance Methods
     
-  #  attr_accessor :symbol
     attr_reader :symbol
     attr_reader :dimension, :derivation
     
     def initialize
-      
       # Unit::Configとinitializeの役割が分離できていないので見なおせ
       config = Config.new(self)
       yield(config) if block_given?
@@ -285,6 +341,8 @@ class NumericWithUnit
       @derivation = config.derivation
     end
     
+    # create new unit with new symbol and factor from self.
+    # use for converting [in] = 25.4[mm] .
     def cast(new_symbol, factor = 1)
       self.class.new do |conf|
         conf.symbol = new_symbol
@@ -311,6 +369,7 @@ class NumericWithUnit
       @dimension.all?{|k,v| v.zero?}
     end
     
+    # return true if self and other_unit have the same dimension.
     def dimension_equal?(other_unit)
       (@dimension.keys | other_unit.dimension.keys).all?{|k|
         @dimension[k] == other_unit.dimension[k]
@@ -326,16 +385,16 @@ class NumericWithUnit
     end
     
     def *(other_unit)
-      self.class.new do |conf|
-        @derivation.each{|k, v| conf.derivation[k] += v}
-        other_unit.derivation.each{|k, v| conf.derivation[k] += v}
+      self.class.derive do |derivation|
+        @derivation.each{|k, v| derivation[k] += v}
+        other_unit.derivation.each{|k, v| derivation[k] += v}
       end
     end
     
     def /(other_unit)
-      self.class.new do |conf|
-        @derivation.each{|k, v| conf.derivation[k] += v}
-        other_unit.derivation.each{|k, v| conf.derivation[k] -= v}
+      self.class.derive do |derivation|
+        @derivation.each{|k, v| derivation[k] += v}
+        other_unit.derivation.each{|k, v| derivation[k] -= v}
       end
     end
     
@@ -343,10 +402,10 @@ class NumericWithUnit
       if num.zero?
         self.class.new
       else
-        self.class.new do |conf|
+        self.class.derive do |derivation|
           # ここto_iでOKか？v*numが整数じゃなければraiseすべき？→すべき→NumericWithUnitでやるべき？
           # Unitでは整数じゃない次数の単位は許容すべきか否か→していい気がする
-          @derivation.each{|k, v| conf.derivation[k] = (v*num).to_i}
+          @derivation.each{|k, v| derivation[k] = (v*num).to_i}
         end
       end
     end
