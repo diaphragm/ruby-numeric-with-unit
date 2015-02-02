@@ -116,9 +116,10 @@ class NumericWithUnit
 
       h = derivation.sort_by{|u,v| u.symbol}.sort_by{|u,v| v} # ←どうしよう
       
-      s1 = h.select{|u,v| v > 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}.join('.')
-      s2 = h.select{|u,v| v < 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}.join('.')
-      symbol = s1 + (s2.empty? ? '' : "/(#{s2})")
+      syms_pos = h.select{|u,v| v > 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}
+      syms_neg = h.select{|u,v| v < 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}
+      symbol = syms_pos.join('.')
+      symbol += '/' + (syms_neg.size==1 ? "#{syms_neg.first}" : "(#{syms_neg.join('.')})") unless syms_neg.empty?
       
       derivation.each do |u,v|
         u.dimension.each do |d,i|
@@ -332,13 +333,11 @@ class NumericWithUnit
       @from_si = config.from_si
       @to_si = config.to_si
       
-      @derivation = if derivation
-        derivation
-      else
-        h = Hash.new(0)
-        h[self] += 1
-        h
+      unless derivation
+        derivation = Hash.new(0)
+        derivation[self] += 1
       end
+      @derivation = derivation
     end
     
     # create new unit with new symbol and factor from self.
@@ -409,6 +408,7 @@ class NumericWithUnit
         end
       end
     end
+    
   end
 
   class Unit
