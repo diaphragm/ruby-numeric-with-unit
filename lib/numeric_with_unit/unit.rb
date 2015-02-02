@@ -1,20 +1,17 @@
 # coding: utf-8
 
-
 class NumericWithUnit
   class Unit
     class Config
-      attr_reader :symbol, :dimension, :derivation
+      attr_reader :symbol, :dimension
       attr_reader :si
       
-      def initialize(parent=nil)
+      def initialize()
         @symbol = nil
         @dimension = Hash.new(0)
         @from_si = nil
         @to_si = nil
         @si = false
-        
-        @parent = parent
       end
       
       def compile
@@ -23,9 +20,6 @@ class NumericWithUnit
         @from_si ||= ->(x){x}
         @to_si ||= ->(x){x}
 
-        @derivation = Hash.new(0)
-        @derivation[@parent] += 1 unless @parent.nil?
-        
         self
       end
       
@@ -158,11 +152,11 @@ class NumericWithUnit
         ->(x){memo[prc[x]]}
       }
 
-      self.new{|conf|
-        conf.symbol = symbol
-        conf.dimension = dimension
-        conf.from_si = from_si
-        conf.to_si = to_si
+      self.new(derivation){|config|
+        config.symbol = symbol
+        config.dimension = dimension
+        config.from_si = from_si
+        config.to_si = to_si
       }
     end
     
@@ -327,9 +321,9 @@ class NumericWithUnit
     attr_reader :symbol
     attr_reader :dimension, :derivation
     
-    def initialize
+    def initialize(derivation=nil)
       # Unit::Configとinitializeの役割が分離できていないので見なおせ
-      config = Config.new(self)
+      config = Config.new
       yield(config) if block_given?
       config.compile
       
@@ -338,17 +332,23 @@ class NumericWithUnit
       @from_si = config.from_si
       @to_si = config.to_si
       
-      @derivation = config.derivation
+      @derivation = if derivation
+        derivation
+      else
+        h = Hash.new(0)
+        h[self] += 1
+        h
+      end
     end
     
     # create new unit with new symbol and factor from self.
     # use for converting [in] = 25.4[mm] .
     def cast(new_symbol, factor = 1)
-      self.class.new do |conf|
-        conf.symbol = new_symbol
-        conf.dimension = @dimension
-        conf.from_si = ->(x){from_si(x.quo(factor))}
-        conf.to_si = ->(x){to_si(x * factor)}
+      self.class.new do |config|
+        config.symbol = new_symbol
+        config.dimension = @dimension
+        config.from_si = ->(x){from_si(x.quo(factor))}
+        config.to_si = ->(x){to_si(x * factor)}
       end
     end
     
