@@ -187,8 +187,11 @@ end
 
 class String
   def to_nwu(mthd=:to_r)
-    m = self.match /(?<value>.+) (?<unit>.+)/ # 適当
-    NumericWithUnit.new(m[:value].__send__(mthd), m[:unit])
+    # 適当
+    m = self.match /.*?(?=[\s\(\[])/
+    value = m.to_s
+    unit = m.post_match.strip.gsub(/^\[|\]$/, '')
+    NumericWithUnit.new(value.__send__(mthd), unit)
   end
 end
 
