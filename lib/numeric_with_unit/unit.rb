@@ -109,24 +109,25 @@ class NumericWithUnit
     def self.derive
       derivation = Hash.new(0)
       yield(derivation)
-
       return Unit.new if derivation.empty?
-
-      dimension = Hash.new(0)
-
-      h = derivation.sort_by{|u,v| u.symbol}.sort_by{|u,v| v} # ←どうしよう
+      derivation.delete_if{|k,v| k.symbol.nil?}
       
-      syms_pos = h.select{|u,v| v > 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}
-      syms_neg = h.select{|u,v| v < 0}.map{|u,v| u.symbol + ((v.abs>1) ? v.abs.to_s : '')}
+      # constructing symbol
+      h = derivation.reject{|k,v| k.symbol.empty?}.sort_by{|u,v| u.symbol}.sort_by{|u,v| v}
+      syms_pos = h.select{|u,v| v > 0}.map{|u,v| u.symbol + (v.abs>1 ? v.abs.to_s : '')}
+      syms_neg = h.select{|u,v| v < 0}.map{|u,v| u.symbol + (v.abs>1 ? v.abs.to_s : '')}
       symbol = syms_pos.join('.')
       symbol += '/' + (syms_neg.size==1 ? "#{syms_neg.first}" : "(#{syms_neg.join('.')})") unless syms_neg.empty?
       
+      # constructing dimension
+      dimension = Hash.new(0)
       derivation.each do |u,v|
         u.dimension.each do |d,i|
           dimension[d] += i*v
         end
       end
-
+      
+      # constructing from_si proc
       from_si = derivation.map{|u,v|
         prc = if v > 0
           ->(x){u.from_si(x)}
@@ -140,6 +141,7 @@ class NumericWithUnit
         ->(x){memo[prc[x]]}
       }
       
+      # constructing to_si proc
       to_si = derivation.map{|u,v|
         prc = if v > 0
           ->(x){u.to_si(x)}
@@ -152,7 +154,8 @@ class NumericWithUnit
       }.reduce{|memo, prc|
         ->(x){memo[prc[x]]}
       }
-
+      
+      # deriving new unit
       self.new(derivation){|config|
         config.symbol = symbol
         config.dimension = dimension
