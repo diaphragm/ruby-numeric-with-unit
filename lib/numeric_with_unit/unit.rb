@@ -106,7 +106,7 @@ class NumericWithUnit
     # class methods
 
     # create new unit from derivation _(for internal use)_ .
-    def self.derive
+    def self.derive #(block)
       derivation = Hash.new(0)
       yield(derivation)
       return Unit.new if derivation.empty?
@@ -326,7 +326,7 @@ class NumericWithUnit
     attr_reader :dimension, :derivation
     
     def initialize(derivation=nil)
-      # Unit::Configとinitializeの役割が分離できていないので見なおせ
+      # TODO: Unit::Configとinitializeの役割が分離できていないので見なおせ
       config = Config.new
       yield(config) if block_given?
       config.compile
@@ -359,11 +359,11 @@ class NumericWithUnit
     end
     
     def to_si(value)
-      @to_si[value]
+      @to_si.call(value)
     end
     
     def from_si(value)
-      @from_si[value]
+      @from_si.call(value)
     end
     
     
@@ -405,6 +405,7 @@ class NumericWithUnit
         self.class.new
       else
         self.class.derive do |derivation|
+          # NOTE:
           # ここto_iでOKか？v*numが整数じゃなければraiseすべき？→すべき→NumericWithUnitでやるべき？
           # Unitでは整数じゃない次数の単位は許容すべきか否か→していい気がする
           @derivation.each{|k, v| derivation[k] = (v*num).to_i}

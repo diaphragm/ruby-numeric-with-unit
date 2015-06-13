@@ -45,8 +45,8 @@ class NumericWithUnit
     @value.to_f
   end
   
-  # Return NumericWithUnit with given unit
-  def to_nwu(unit)
+  # Convert to given unit
+  def convert(unit)
     new_unit = unit.is_a?(Unit) ? unit : Unit[unit]
     
     unless @unit.dimension_equal? new_unit
@@ -56,7 +56,8 @@ class NumericWithUnit
     new_value = new_unit.from_si(@unit.to_si(@value))
     self.class.new(new_value, new_unit)
   end
-  alias :[] :to_nwu
+  alias :to_nwu :convert
+  alias :[] :convert
   
   def +@
     self
@@ -109,7 +110,9 @@ class NumericWithUnit
     # Dimension Check
     @unit.derivation.each do |k,v|
       res = v * num
-      raise DimensionError, "Dimension of #{k.symbol}(#{v}*#{num}) must be Integer" unless res.to_i == res # 判定方法見なおせ
+      unless res.to_i == res # TODO: 整数かどうかの判定方法いいのこれで
+        raise DimensionError, "Dimension of #{k.symbol}(#{v}*#{num}) must be Integer"
+      end
     end
     
     self.class.new(@value**num, @unit**num)
@@ -187,7 +190,7 @@ end
 
 class String
   def to_nwu(mthd=:to_r)
-    # 適当
+    # TODO: 適当なのでもう少しいい感じに。いい感じに
     m = self.match /.*?(?=[\s\(\[])/
     value = m.to_s
     unit = m.post_match.strip.gsub(/^\[|\]$/, '')
