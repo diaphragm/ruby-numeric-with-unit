@@ -48,7 +48,7 @@ class NumericWithUnit
   # Thermodynamic Temperature
   Unit << Unit.new do |conf|
     conf.symbol = 'K'
-    conf.dimension[:Θ] = 1
+    conf.dimension[:THETA] = 1
     conf.si = true
   end
 
@@ -120,16 +120,16 @@ class NumericWithUnit
   # Inductance
   Unit['H'] = 'V.s/A'
 
-  # Temperature
-  Unit << Unit.new do |conf|
-    k = Unit['K']
-    intercept = "273.15".to_r
-    
-    conf.symbol = '℃'
-    conf.dimension = k.dimension
-    conf.from_si{|x| k.from_si(x)-intercept}
-    conf.to_si{|x| k.to_si(x+intercept)}
-  end
+#  # Temperature
+#  Unit << Unit.new do |conf|
+#    k = Unit['K']
+#    intercept = "273.15".to_r
+#    
+#    conf.symbol = '℃'
+#    conf.dimension = k.dimension
+#    conf.from_si{|x| k.from_si(x)-intercept}
+#    conf.to_si{|x| k.to_si(x+intercept)}
+#  end
 
   # Luminouse flux
   Unit['lx'] = 'cd.sr'
