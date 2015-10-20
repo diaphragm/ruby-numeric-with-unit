@@ -19,8 +19,8 @@ class NumericWithUnit
 
   # Mass
   Unit['ton'] = 1000, 'kg'
-  Unit['oz'] = "28.349523125".to_r, 'g'
-  Unit['lb'] = 16, 'oz'
+  Unit['lb'] = "0.45359237".to_r, 'kg' # 常用ポンド
+  Unit['oz'] = "1/16".to_r, 'lb' # 常用オンス
   
   # Electriccal Resistance
   Unit['ohm'] = 'Ω'
@@ -48,7 +48,8 @@ class NumericWithUnit
 
   # Volume
   Unit['cc'] = 'cm3'
-  Unit['bbl'] = "0.158987294928".to_r, 'm3'
+  Unit['gal'] = 231, 'in3' # 米液量ガロン
+  Unit['bbl'] = 42, 'gal' # 石油要バレル
 
   # Force
   Unit['kgf'] = "9.80665".to_r, 'N'
@@ -66,7 +67,7 @@ class NumericWithUnit
   Unit['mHg'] = "1/1000".to_r, 'mmHg' # for compatible
   Unit['mH2O'] = "9806.65".to_r, 'Pa'
   Unit['mAq'] = 'mH2O'
-  Unit['psi'] = "6894.76".to_r, 'Pa'
+  Unit['psi'] = 'lbf/in2'
 
 #  # Guage圧の扱いどうしようか？
 #  Unit << Unit.new do |conf|
@@ -84,6 +85,7 @@ class NumericWithUnit
 
   # Flowrate
   Unit['lpm'] = 'L/min'
+  Unit['CMH'] = 'm3/hr'
 
   # Viscosity
   Unit['P'] = "1/10".to_r, 'Pa.s'
