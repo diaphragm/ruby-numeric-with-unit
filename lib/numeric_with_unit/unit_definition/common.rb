@@ -26,17 +26,17 @@ class NumericWithUnit
   Unit['ohm'] = 'Ω'
 
   # Temperature
-  Unit['degC'] = '℃'
+#  Unit['degC'] = '℃'
   Unit['degR'] = "5/9".to_r, 'K'
-  Unit << Unit.new do |conf|
-    degr = Unit['degR']
-    intercept = "459.67".to_r
-    
-    conf.symbol = 'degF'
-    conf.dimension = degr.dimension
-    conf.from_si{|x| degr.from_si(x)-intercept}
-    conf.to_si{|x| degr.to_si(x+intercept)}
-  end
+#  Unit << Unit.new do |conf|
+#    degr = Unit['degR']
+#    intercept = "459.67".to_r
+#    
+#    conf.symbol = 'degF'
+#    conf.dimension = degr.dimension
+#    conf.from_si{|x| degr.from_si(x)-intercept}
+#    conf.to_si{|x| degr.to_si(x+intercept)}
+#  end
 
   # Length
   Unit['Å'] = 10**-10, 'm'
@@ -68,16 +68,16 @@ class NumericWithUnit
   Unit['mAq'] = 'mH2O'
   Unit['psi'] = "6894.76".to_r, 'Pa'
 
-  # Guage圧の扱いどうしようか？
-  Unit << Unit.new do |conf|
-    pa = Unit['Pa']
-    atm = 101325
-
-    conf.symbol = 'PaG'
-    conf.dimension = pa.dimension
-    conf.from_si{|x| pa.from_si(x)-atm}
-    conf.to_si{|x| pa.to_si(x+atm)}
-  end
+#  # Guage圧の扱いどうしようか？
+#  Unit << Unit.new do |conf|
+#    pa = Unit['Pa']
+#    atm = 101325
+#
+#    conf.symbol = 'PaG'
+#    conf.dimension = pa.dimension
+#    conf.from_si{|x| pa.from_si(x)-atm}
+#    conf.to_si{|x| pa.to_si(x+atm)}
+#  end
 
   # Speed
   Unit['kph'] = 'km/hr'
