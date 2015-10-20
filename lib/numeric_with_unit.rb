@@ -26,7 +26,7 @@ class NumericWithUnit
   # Else return nil.
   def <=>(other)
     if other.is_a?(self.class) and @unit.dimension_equal? other.unit
-      @unit.to_si(@value) <=> other.unit.to_si(other.value)
+      value_si <=> other.value_si
     end
   end
 
@@ -43,6 +43,11 @@ class NumericWithUnit
   # Return value.to_f
   def to_f
     @value.to_f
+  end
+
+  # Return value in si
+  def value_si
+    @unit.to_si(@value)
   end
 
   # Convert to given unit
@@ -191,7 +196,7 @@ end
 class String
   def to_nwu(mthd=:to_r)
     # TODO: 適当なのでもう少しいい感じに。いい感じに
-    m = self.match(/.*?(?=[\s\(\[])/)
+    m = self.match /.*?(?=[\s\(\[])/
     value = m.to_s
     unit = m.post_match.strip.gsub(/^\[|\]$/, '')
     NumericWithUnit.new(value.__send__(mthd), unit)
@@ -203,3 +208,4 @@ end
 # unit definition
 require 'numeric_with_unit/unit_definition/base'
 require 'numeric_with_unit/unit_definition/common'
+
