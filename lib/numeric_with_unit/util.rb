@@ -8,7 +8,7 @@ require 'numeric_with_unit'
 class NumericWithUnit
   module NumUtil
     def [](unit)
-      NumericWithUnit.new(self.rationalize, unit) # ratoinalizeする？
+      NumericWithUnit.new(self, unit)
     end
   end
 end
