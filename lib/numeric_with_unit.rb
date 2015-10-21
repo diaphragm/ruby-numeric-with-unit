@@ -133,6 +133,22 @@ class NumericWithUnit
   def sqrt; root(2) end # 平方根
   def cbrt; root(3) end # 立方根
 
+  def ceil
+    self.class.new(@value.ceil, @unit)
+  end
+
+  def floor
+    self.class.new(@value.floor, @unit)
+  end
+
+  def round
+    self.class.new(@value.round, @unit)
+  end
+
+  def truncate
+    self.class.new(@value.truncate, @unit)
+  end
+  
   private
 
   def add_with_other_unit(other)
