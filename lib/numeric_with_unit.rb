@@ -29,6 +29,10 @@ class NumericWithUnit
       value_si <=> other.value_si
     end
   end
+  
+  def ===(other)
+    self.<=>(other) == 0
+  end
 
   # Return succed value with same unit.
   def succ
