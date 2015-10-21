@@ -11,5 +11,5 @@ Gem::Specification.new do |s|
   s.homepage = "https://github.com/diaphragm/ruby-numeric-with-unit"
   
   s.required_ruby_version = '>=2.0.0'
-  s.files = Dir['lib/**/*']
+  s.files = Dir['LICENSE', 'README.md', 'lib/**/*']
 end
