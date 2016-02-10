@@ -110,6 +110,7 @@ class NumericWithUnit
       derivation = Hash.new(0)
       yield(derivation)
       return Unit.new if derivation.empty?
+      
       derivation.delete_if{|k,v| k.symbol.nil?}
       
       # constructing symbol
@@ -117,7 +118,7 @@ class NumericWithUnit
       syms_pos = h.select{|u,v| v > 0}.map{|u,v| u.symbol + (v.abs>1 ? v.abs.to_s : '')}
       syms_neg = h.select{|u,v| v < 0}.map{|u,v| u.symbol + (v.abs>1 ? v.abs.to_s : '')}
       symbol = syms_pos.join('.')
-      symbol += '/' + (syms_neg.size==1 ? "#{syms_neg.first}" : "(#{syms_neg.join('.')})") unless syms_neg.empty?
+      symbol += '/' + (syms_neg.size>1 ? "(#{syms_neg.join('.')})" : "#{syms_neg.first}") unless syms_neg.empty?
       
       # constructing dimension
       dimension = Hash.new(0)
@@ -132,7 +133,7 @@ class NumericWithUnit
         prc = if v > 0
           ->(x){u.from_si(x)}
         else
-          ->(x){x.quo(u.from_si(1)-u.from_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
+          ->(x){x.quo(u.from_si(1)-u.from_si(0))} #FIXME: ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
         end
         [prc, v.abs]
       }.map{|prc,v|
@@ -146,7 +147,7 @@ class NumericWithUnit
         prc = if v > 0
           ->(x){u.to_si(x)}
         else
-          ->(x){x.quo(u.to_si(1)-u.to_si(0))} # ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
+          ->(x){x.quo(u.to_si(1)-u.to_si(0))} #FIXME: ℃とKの変換のような場合に、変換式の切片を消すため。変換式が線形じゃないケースは想定していない
         end
         [prc, v.abs]
       }.map{|prc,v|
@@ -183,7 +184,7 @@ class NumericWithUnit
     
     # return base unit list.
     def self.list
-      @@list.map(&:symbol)
+      @@list
     end
     
     # add unit to base unit list.
@@ -307,7 +308,7 @@ class NumericWithUnit
           rec[x, derivation, order]
         end
       else
-        raise StandardError, "maybe bug"
+        raise StandardError, %(maybe bug in "numeric_with_unit" gem)
       end
       derivation
     end
@@ -356,6 +357,10 @@ class NumericWithUnit
     
     def to_s
       @symbol
+    end
+    
+    def inspect
+      "#<#{self.class}:[#{@symbol}] #{@dimension}>"
     end
     
     def to_si(value)
@@ -411,6 +416,17 @@ class NumericWithUnit
           @derivation.each{|k, v| derivation[k] = (v*num).to_i}
         end
       end
+    end
+    
+    
+    def simplify
+      self.class.derive{|derivation|
+        @dimension.each do|d,o|
+          u = self.class.list.find{|u| u.dimension == {d => 1}} #TODO: find? ok?
+          raise NoUnitError, "No unit with #{{d=>1}} dimension is assined." unless u
+          derivation[u] = o
+        end
+      }
     end
     
   end
