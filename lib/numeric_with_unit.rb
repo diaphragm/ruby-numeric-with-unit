@@ -14,7 +14,7 @@ class NumericWithUnit
 
   # Return String for inspect
   def inspect
-    "#{@value.inspect} [#{@unit.symbol}] #{unit.dimension.inspect}"
+    "#{@value.inspect} [#{@unit.symbol}] #{@unit.dimension.inspect}"
   end
 
   # Return String with value and unit symbol
@@ -68,6 +68,12 @@ class NumericWithUnit
   alias :to_nwu :convert
   alias :[] :convert
 
+  # Convert to simple unit
+  def simplify
+    convert(@unit.simplify)
+  end
+
+
   def +@
     self
   end
@@ -117,14 +123,17 @@ class NumericWithUnit
 
   def **(num)
     # Dimension Check
-    @unit.derivation.each do |k,v|
-      res = v * num
-      unless res.to_i == res # TODO: 整数かどうかの判定方法いいのこれで
-        raise DimensionError, "Dimension of #{k.symbol}(#{v}*#{num}) must be Integer"
+    if @unit.derivation.all?{|k,v| o = v * num; o.to_i == o} # TODO: 整数かどうかの判定方法いいのこれで
+     self.class.new(@value**num, @unit**num)
+    else
+      nu = @unit.simplify
+      if nu.derivation.all?{|k,v| o = v * num; o.to_i == o}
+        nv = nu.from_si(@unit.to_si(@value))
+        self.class.new(nv ** num, nu**num)
+      else
+        raise DimensionError, "All derivating units order multiplied #{num} must be integer"
       end
-    end
-
-    self.class.new(@value**num, @unit**num)
+   end
   end
 
   def root(num)
@@ -148,7 +157,8 @@ class NumericWithUnit
   def truncate
     self.class.new(@value.truncate, @unit)
   end
-  
+
+
   private
 
   def add_with_other_unit(other)
