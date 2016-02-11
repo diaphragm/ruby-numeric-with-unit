@@ -29,7 +29,7 @@ class NumericWithUnit
       value_si <=> other.value_si
     end
   end
-  
+
   def ===(other)
     self.<=>(other) == 0
   end
@@ -210,4 +210,3 @@ require 'numeric_with_unit/core_ext'
 # unit definition
 require 'numeric_with_unit/unit_definition/base'
 require 'numeric_with_unit/unit_definition/common'
-
