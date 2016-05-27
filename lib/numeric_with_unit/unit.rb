@@ -109,9 +109,10 @@ class NumericWithUnit
     def self.derive #(block)
       derivation = Hash.new(0)
       yield(derivation)
+      derivation.delete_if{|k,v| k.symbol.nil?}
+      
       return Unit.new if derivation.empty?
       
-      derivation.delete_if{|k,v| k.symbol.nil?}
       
       # constructing symbol
       h = derivation.reject{|k,v| k.symbol.empty?}.sort_by{|u,v| u.symbol}.sort_by{|u,v| v}
