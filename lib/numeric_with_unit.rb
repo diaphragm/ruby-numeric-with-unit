@@ -55,7 +55,7 @@ class NumericWithUnit
   end
 
   # Convert to given unit
-  def convert(unit)
+  def convert!(unit)
     new_unit = unit.is_a?(Unit) ? unit : Unit[unit]
 
     unless @unit.dimension_equal? new_unit
@@ -63,10 +63,15 @@ class NumericWithUnit
     end
 
     new_value = new_unit.from_si(@unit.to_si(@value))
-    self.class.new(new_value, new_unit)
+    @value, @unit = new_value, new_unit
+    self
+  end
+  alias :[] :convert!
+  
+  def convert(unit)
+    clone.convert!(unit)
   end
   alias :to_nwu :convert
-  alias :[] :convert
 
   # Convert to simple unit
   def simplify
