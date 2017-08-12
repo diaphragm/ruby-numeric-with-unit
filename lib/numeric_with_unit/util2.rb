@@ -54,15 +54,4 @@ class NumericWithUnit
   end
 end
 
-
-class Fixnum
-  prepend NumericWithUnit::NumUtil
-end
-
-class Bignum
-  prepend NumericWithUnit::NumUtil
-end
-
-class Numeric
-  prepend NumericWithUnit::NumUtil
-end
+Numeric.prepend NumericWithUnit::NumUtil
