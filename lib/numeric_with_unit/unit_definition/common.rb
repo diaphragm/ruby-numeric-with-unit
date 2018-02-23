@@ -54,6 +54,7 @@ class NumericWithUnit
   # Force
   Unit['kgf'] = "9.80665".to_r, 'N'
   Unit['lbf'] = "4.4482216152605".to_r, 'N'
+  Unit['dyn'] = "1/100000".to_r, 'N'
 
   # Power
   Unit['PS'] = 75, 'kgf.m/s' # 仏馬力。小文字[ps]だとpico secondと区別がつかないため大文字で定義
