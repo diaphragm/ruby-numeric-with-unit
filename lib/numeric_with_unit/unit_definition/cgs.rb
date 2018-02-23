@@ -17,3 +17,4 @@ Unit['poise'] = 'g/(cm.s)'
 
 Unit['St'] = 'cm2/s'
 
+Unit['dyn'] = "1/100000".to_r, 'N'
