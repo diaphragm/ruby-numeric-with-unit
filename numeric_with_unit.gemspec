@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = "numeric_with_unit"
-  s.version = "0.2.0"
+  s.version = "0.3.0"
 
   s.summary = "Numerical calculation with unit of measurement"
   s.author = "diaphragm"
