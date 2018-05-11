@@ -57,7 +57,7 @@ If some unit is defined as a basic unit, it is not necessary to define units wit
 
 In the above example, it is not necessary to define [kPa] or [Pa.s] (unit of viscosity) because [Pa] is defined.
 
-The basic and common unit is predefined in 'numericwithunit/unit_definition/base.rb' and 'numericwithunit/unit_definition/common.rb'
+The basic and common unit is predefined in 'numeric_with_unit/unit_definition/base.rb' and 'numeric_with_unit/unit_definition/common.rb'
 (These files are loaded by default)
 
 `NumericWithUnit::Unit.list.map(&:symbol)` gives a list of defined units.
