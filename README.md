@@ -34,6 +34,10 @@ Examples
 
     # example 2
     puts (50['L/min'] + 3['m3/hr'] ) * 30['min'] #=> 3000/1 L
+    
+    # example 3
+    puts 2["kg.um3/(m2.N)"] ** 0.5        #=> 1.4142135623730951e-09 s
+                                          #   It is also possible to calculate the exponentiation roots of complex units.
 
 * Caution: `Numeric#[]`, `Fixnum#[]` and `Bignum#[]` are overrided when `require 'numeric_with_unit/util'`
 
